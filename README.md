@@ -4,59 +4,15 @@ A comprehensive, extensible testing framework for NodeBoot applications that pro
 
 ## Table of Contents
 
-1. [Architecture Overview](#architecture-overview)
-2. [Quick Start](#quick-start)
+1. [Quick Start](#quick-start)
+2. [Architecture Overview](#architecture-overview)
 3. [Hook Types: Setup vs Return Hooks](#hook-types-setup-vs-return-hooks)
 4. [Available Hooks](#available-hooks)
-5. [Advanced Usage](#advanced-usage)
-6. [Best Practices](#best-practices)
-7. [Troubleshooting](#troubleshooting)
-8. [Migration Guide](#migration-guide)
-9. [Hook Reference](#hook-reference)
-10. [Advanced Usage](#advanced-usage)
-
-## Architecture Overview
-
-The NodeBoot Test Framework follows a layered, plugin-based architecture designed for maximum extensibility and composability:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                Test Runner Integration                  │
-│            (Jest, Mocha, Vitest, etc.)                  │
-├─────────────────────────────────────────────────────────┤
-│              Custom Hook Libraries                      │
-│       (JestHooksLibrary, MochaHooksLibrary, etc.)       │
-├─────────────────────────────────────────────────────────┤
-│                 Core Framework                          │
-│    (NodeBootTestFramework, HookManager, HooksLibrary)   │
-├─────────────────────────────────────────────────────────┤
-│                   Hook System                           │
-│        (Hook base class, lifecycle phases)              │
-├─────────────────────────────────────────────────────────┤
-│               NodeBoot Application                      │
-│         (IoC Container, Services, Config)               │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Key Design Principles
-
-1. **Plugin Architecture**: Everything is a hook that can be added, removed, or customized
-2. **Lifecycle-Driven**: Clear, predictable execution phases
-3. **Priority-Based**: Hooks execute in controlled order based on priority
-4. **State Management**: Hooks can store and share state across lifecycle phases
-5. **Test Runner Agnostic**: Core framework works with any test runner
-6. **Composable**: Hook libraries can extend and combine functionality
-
-### 3. Hook System
-
-The framework uses a priority-based hook system that executes in phases:
-
--   **beforeStart**: Setup before application starts
--   **afterStart**: Configuration after application starts
--   **beforeTests**: Setup before test suite runs
--   **afterTests**: Cleanup after test suite completes
--   **beforeEachTest**: Setup before each individual test
--   **afterEachTest**: Cleanup after each individual test
+5. [Best Practices](#best-practices)
+6. [Troubleshooting](#troubleshooting)
+7. [Migration Guide](#migration-guide)
+8. [Hook Reference](#hook-reference)
+9. [Extending](#extending-the-framework)
 
 ## Quick Start
 
@@ -119,6 +75,49 @@ You can also check the demo projects:
 -   [Express Demo](demos/jest-express-demo) - A simple Express app with integration tests using Jest.
 -   [Fastify Demo](demos/jest-fastify-demo) - A Fastify app with integration tests using Jest.
 -   [Koa Demo](demos/jest-koa-demo) - A Koa app with integration tests using Jest.
+
+## Architecture Overview
+
+The NodeBoot Test Framework follows a layered, plugin-based architecture designed for maximum extensibility and composability:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                Test Runner Integration                  │
+│            (Jest, Mocha, Vitest, etc.)                  │
+├─────────────────────────────────────────────────────────┤
+│              Custom Hook Libraries                      │
+│       (JestHooksLibrary, MochaHooksLibrary, etc.)       │
+├─────────────────────────────────────────────────────────┤
+│                 Core Framework                          │
+│    (NodeBootTestFramework, HookManager, HooksLibrary)   │
+├─────────────────────────────────────────────────────────┤
+│                   Hook System                           │
+│        (Hook base class, lifecycle phases)              │
+├─────────────────────────────────────────────────────────┤
+│               NodeBoot Application                      │
+│         (IoC Container, Services, Config)               │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Key Design Principles
+
+1. **Plugin Architecture**: Everything is a hook that can be added, removed, or customized
+2. **Lifecycle-Driven**: Clear, predictable execution phases
+3. **Priority-Based**: Hooks execute in controlled order based on priority
+4. **State Management**: Hooks can store and share state across lifecycle phases
+5. **Test Runner Agnostic**: Core framework works with any test runner
+6. **Composable**: Hook libraries can extend and combine functionality
+
+### 3. Hook System
+
+The framework uses a priority-based hook system that executes in phases:
+
+-   **beforeStart**: Setup before application starts
+-   **afterStart**: Configuration after application starts
+-   **beforeTests**: Setup before test suite runs
+-   **afterTests**: Cleanup after test suite completes
+-   **beforeEachTest**: Setup before each individual test
+-   **afterEachTest**: Cleanup after each individual test
 
 ## Hook Types: Setup vs Return Hooks
 
@@ -659,7 +658,7 @@ it("should work", () => {
 });
 ```
 
-## Advanced Usage
+## Extending the Framework
 
 -   To implement custom hooks or extend the framework, refer to the [Creating Custom Hooks](packages/core/README.md#advanced-usage) documentation.
 -   Fora concrete example of extension, refer to the [Jest Hooks Library](packages/jest/README.md) documentation.
