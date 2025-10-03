@@ -63,9 +63,9 @@ The framework uses a priority-based hook system that executes in phases:
 ### Installation
 
 ```bash
-npm install @nodeboot/test @nodeboot/jest
+npm install @nodeboot/jest
 # or
-pnpm add @nodeboot/test @nodeboot/jest
+pnpm add @nodeboot/jest
 ```
 
 ### Basic Usage
@@ -107,6 +107,18 @@ describe("My App Integration Tests", () => {
     });
 });
 ```
+
+### Advanced Usage
+
+For a step by step inline NodeBoot application example plus full integration tests setup in one single file, refer to the [Full NodeBoot App + Integration Tests](demos/jest-express-demo/src/notebook.test.ts).
+
+> Feel free to explore it, run it, and modify it to get a hands-on understanding of how to leverage the NodeBoot Test Framework effectively.
+
+You can also check the demo projects:
+
+-   [Express Demo](demos/jest-express-demo) - A simple Express app with integration tests using Jest.
+-   [Fastify Demo](demos/jest-fastify-demo) - A Fastify app with integration tests using Jest.
+-   [Koa Demo](demos/jest-koa-demo) - A Koa app with integration tests using Jest.
 
 ## Hook Types: Setup vs Return Hooks
 
