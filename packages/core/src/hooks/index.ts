@@ -9,3 +9,4 @@ export {MockHook} from "./MockHook";
 export {PactumHook} from "./PactumHook";
 export {RepositoryHook} from "./RepositoryHook";
 export {ServiceHook} from "./ServiceHook";
+export {MetricsHook} from "./MetricsHook";

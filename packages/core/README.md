@@ -1,34 +1,49 @@
 # NodeBoot Integration Test Framework
 
-A comprehensive testing framework for NodeBoot applications that provides dependency injection testing, service mocking, and lifecycle management with support for Jest and other test runners.
+A comprehensive, extensible testing framework for NodeBoot applications that provides a plugin-based architecture for dependency injection testing, service mocking, and lifecycle management.
 
-## Overview
+## Table of Contents
 
-The NodeBoot Test Framework enables developers to write integration tests for NodeBoot applications with minimal setup while providing powerful features like:
+1. [Architecture Overview](#architecture-overview)
+2. [Quick Start](#quick-start)
+3. [Hook Types: Setup vs Return Hooks](#hook-types-setup-vs-return-hooks)
+4. [Available Hooks](#available-hooks)
+5. [Advanced Usage](#advanced-usage)
+6. [Best Practices](#best-practices)
+7. [Troubleshooting](#troubleshooting)
+8. [Migration Guide](#migration-guide)
 
--   **Service Injection**: Access real or mocked services from your IoC container
--   **HTTP Testing**: Built-in HTTP client and Supertest integration
--   **Mock Management**: Easy service mocking with automatic cleanup
--   **Configuration Override**: Test-specific configuration and environment variables
--   **Lifecycle Hooks**: Comprehensive test lifecycle management
--   **Timer Control**: Mock and control JavaScript timers in tests
+## Architecture Overview
 
-## Architecture
+The NodeBoot Test Framework follows a layered, plugin-based architecture designed for maximum extensibility and composability:
 
-The framework consists of three main components:
+```
+┌─────────────────────────────────────────────────────────┐
+│                Test Runner Integration                   │
+│            (Jest, Mocha, Vitest, etc.)                 │
+├─────────────────────────────────────────────────────────┤
+│              Custom Hook Libraries                      │
+│       (JestHooksLibrary, MochaHooksLibrary, etc.)      │
+├─────────────────────────────────────────────────────────┤
+│                 Core Framework                          │
+│    (NodeBootTestFramework, HookManager, HooksLibrary)  │
+├─────────────────────────────────────────────────────────┤
+│                   Hook System                           │
+│        (Hook base class, lifecycle phases)             │
+├─────────────────────────────────────────────────────────┤
+│               NodeBoot Application                      │
+│         (IoC Container, Services, Config)              │
+└─────────────────────────────────────────────────────────┘
+```
 
-### 1. Core Framework (`@nodeboot/test`)
+### Key Design Principles
 
--   `NodeBootTestFramework`: Main orchestrator that manages the test lifecycle
--   `HookManager`: Manages hook execution order and lifecycle phases
--   `HooksLibrary`: Collection of built-in testing utilities
--   `Hook`: Base class for creating custom testing hooks
-
-### 2. Jest Integration (`@nodeboot/jest`)
-
--   `useNodeBoot()`: Jest-specific integration function
--   `JestHooksLibrary`: Extended hooks with Jest-specific features (spies, timers)
--   Automatic Jest lifecycle integration (beforeAll, afterAll, etc.)
+1. **Plugin Architecture**: Everything is a hook that can be added, removed, or customized
+2. **Lifecycle-Driven**: Clear, predictable execution phases
+3. **Priority-Based**: Hooks execute in controlled order based on priority
+4. **State Management**: Hooks can store and share state across lifecycle phases
+5. **Test Runner Agnostic**: Core framework works with any test runner
+6. **Composable**: Hook libraries can extend and combine functionality
 
 ### 3. Hook System
 
@@ -91,9 +106,142 @@ describe("My App Integration Tests", () => {
 });
 ```
 
+## Hook Types: Setup vs Return Hooks
+
+The NodeBoot Test Framework provides two distinct types of hooks that serve different purposes in your test lifecycle:
+
+### Setup Hooks (Configuration Phase)
+
+Setup hooks are **called during test configuration** and are used to prepare your test environment before the application starts. These hooks configure how your application will run during tests.
+
+**Key Characteristics:**
+
+-   Execute during the setup callback function passed to `useNodeBoot()`
+-   Run **before** the application starts
+-   Used for configuration, mocking, and environment setup
+-   Cannot access running application services or HTTP endpoints
+-   Changes take effect when the application starts
+
+**Usage Pattern:**
+
+```typescript
+const hooks = useNodeBoot(MyApp, ({useConfig, useMock, useEnv}) => {
+    // These are Setup Hooks - they configure the test environment
+    useConfig({database: {url: "sqlite::memory:"}});
+    useMock(EmailService, {sendEmail: jest.fn()});
+    useEnv({NODE_ENV: "test"});
+});
+```
+
+**Common Setup Hooks:**
+
+-   `useConfig()` - Override application configuration
+-   `useMock()` - Mock service implementations
+-   `useEnv()` - Set environment variables
+-   `usePactum()` - Enable HTTP testing tools
+-   `useCleanup()` - Register cleanup functions
+-   `useAddress()` - Get server address after startup
+
+### Return Hooks (Runtime Phase)
+
+Return hooks are **returned from `useNodeBoot()`** and are used during test execution to interact with your running application. These hooks provide access to services, repositories, and HTTP clients.
+
+**Key Characteristics:**
+
+-   Available after `useNodeBoot()` returns
+-   Execute during test runtime when called
+-   Used for interacting with the running application
+-   Can access services, make HTTP requests, and query data
+-   Provide the actual testing capabilities
+
+**Usage Pattern:**
+
+```typescript
+const {useService, useHttp, useRepository} = useNodeBoot(MyApp, setupCallback);
+
+it("should work with services", () => {
+    // These are Return Hooks - they interact with the running app
+    const userService = useService(UserService);
+    const {get, post} = useHttp();
+    const userRepo = useRepository(UserRepository);
+});
+```
+
+**Common Return Hooks:**
+
+-   `useService()` - Access IoC container services
+-   `useRepository()` - Access data repositories
+-   `useHttp()` - HTTP client for API testing
+-   `useSupertest()` - Supertest instance for HTTP testing
+-   `useConfig()` - Access current configuration (read-only)
+-   `useSpy()` - Create Jest spies on services
+
+### Execution Timeline
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Setup Phase   │    │  Application     │    │  Test Execution │
+│                 │    │  Startup         │    │                 │
+│  Setup Hooks    │───▶│                  │───▶│  Return Hooks   │
+│  - useConfig()  │    │  - Load config   │    │  - useService() │
+│  - useMock()    │    │  - Start server  │    │  - useHttp()    │
+│  - useEnv()     │    │  - Initialize    │    │  - useRepo()    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+### Best Practices
+
+1. **Use Setup Hooks for Configuration:**
+
+    ```typescript
+    // ✅ Good - Configure before app starts
+    useNodeBoot(App, ({useConfig, useMock}) => {
+        useConfig({port: 3001});
+        useMock(EmailService, mockImpl);
+    });
+    ```
+
+2. **Use Return Hooks for Testing:**
+
+    ```typescript
+    // ✅ Good - Test the running application
+    const {useService, useHttp} = useNodeBoot(App, setup);
+
+    it("should work", () => {
+        const service = useService(MyService);
+        expect(service.doSomething()).toBeTruthy();
+    });
+    ```
+
+3. **Don't Mix Hook Types:**
+
+    ```typescript
+    // ❌ Bad - Can't use return hooks in setup
+    useNodeBoot(App, ({useConfig, useService}) => {
+        // useService not available here
+        useConfig({port: 3001});
+        const service = useService(MyService); // This will fail!
+    });
+    ```
+
+4. **Understand Timing:**
+
+    ```typescript
+    // ✅ Good - Right timing for each hook type
+    const hooks = useNodeBoot(App, ({useConfig}) => {
+        useConfig({database: {url: "test.db"}}); // Setup: before app starts
+    });
+
+    it("should access database", () => {
+        const repo = hooks.useRepository(UserRepo); // Runtime: after app started
+    });
+    ```
+
 ## Available Hooks
 
 ### Setup Hooks (Configuration Phase)
+
+These hooks are called during the setup callback passed to `useNodeBoot()` and configure your test environment before the application starts.
 
 #### `useConfig(config: object)`
 
@@ -138,7 +286,7 @@ useMock(PaymentService, {
 
 #### `useAddress(callback: (address: string) => void)`
 
-Access the server's listening address.
+Access the server's listening address after startup.
 
 ```typescript
 useAddress(address => {
@@ -159,18 +307,21 @@ useAppContext(context => {
 });
 ```
 
-#### `usePactum()`
+#### `usePactum(baseUrl?: string)`
 
 Enable Pactum.js integration for HTTP testing.
 
 ```typescript
-usePactum();
+usePactum(); // Uses default server address
+// or
+usePactum("http://localhost:3001"); // Custom base URL
+
 // Now you can use spec() from pactum directly in tests
 ```
 
 #### `useCleanup(hooks: { afterAll?: () => void, afterEach?: () => void })`
 
-Register cleanup functions.
+Register cleanup functions that will be called automatically.
 
 ```typescript
 useCleanup({
@@ -196,14 +347,15 @@ const result = userService.findUser("123");
 
 #### `useRepository(RepositoryClass)`
 
-Get repository instances (for data layer testing).
+Get repository instances for data layer testing.
 
 ```typescript
 const userRepo = useRepository(UserRepository);
 await userRepo.create({name: "Test User"});
+const users = await userRepo.findAll();
 ```
 
-#### `useHttp()`
+#### `useHttp(baseURL?: string)`
 
 Get HTTP client for API testing.
 
@@ -213,7 +365,7 @@ const {get, post, put, delete: del} = useHttp();
 // GET request
 const users = await get("/api/users");
 
-// POST request
+// POST request with data
 const newUser = await post("/api/users", {
     name: "John Doe",
     email: "john@example.com",
@@ -223,95 +375,67 @@ const newUser = await post("/api/users", {
 const response = await get("/api/protected", {
     headers: {Authorization: "Bearer token"},
 });
+
+// Custom base URL
+const externalApi = useHttp("https://api.external.com");
+const data = await externalApi.get("/data");
 ```
 
 #### `useSupertest()`
 
-Get Supertest instance for HTTP testing.
+Get Supertest instance for HTTP testing with built-in assertions.
 
 ```typescript
 const request = useSupertest();
 
-await request.get("/api/users").expect(200).expect("Content-Type", /json/);
+await request
+    .get("/api/users")
+    .expect(200)
+    .expect("Content-Type", /json/)
+    .expect(res => {
+        expect(res.body).toHaveLength(1);
+    });
 ```
 
 #### `useConfig()`
 
-Access the current configuration.
+Access the current configuration (read-only during test execution).
 
 ```typescript
 const config = useConfig();
 const port = config.getNumber("app.port");
 const dbUrl = config.getString("database.url");
+const isProduction = config.getBoolean("app.production", false);
 ```
 
-### Jest-Specific Hooks
+### Dual-Purpose Hooks
 
-#### `useSpy(ServiceClass, methodName)`
+Some hooks can be used both during setup and test execution phases.
 
-Create Jest spies on service methods.
+#### `useAppContext()` (Setup & Return)
 
-```typescript
-const spy = useSpy(UserService, "findUser");
-
-// Use the service normally
-const user = useService(UserService).findUser("123");
-
-// Verify spy calls
-expect(spy).toHaveBeenCalledWith("123");
-expect(spy).toHaveBeenCalledTimes(1);
-```
-
-#### `useTimer()`
-
-Control JavaScript timers in tests.
+Can be used as both a setup hook (with callback) and return hook (direct access).
 
 ```typescript
-const {control} = useTimer();
+// Setup usage - configure during setup phase
+useNodeBoot(App, ({useAppContext}) => {
+    useAppContext(context => {
+        // Configure based on application context
+        console.log("App started with config:", context.config);
+    });
+});
 
-let callbackCalled = false;
-setTimeout(() => (callbackCalled = true), 1000);
-
-expect(callbackCalled).toBe(false);
-
-// Advance time by 1 second
-control().advanceTimeBy(1000);
-expect(callbackCalled).toBe(true);
-
-// Or run all pending timers
-control().runAllTimers();
+// Return usage - access during test execution
+const {useAppContext} = useNodeBoot(App, setup);
+it("should access app context", () => {
+    useAppContext(context => {
+        expect(context.logger).toBeDefined();
+        expect(context.config).toBeDefined();
+    });
+});
 ```
 
 ## Advanced Usage
-
-### Custom Hook Libraries
-
-Create custom hook libraries for specific testing needs:
-
-```typescript
-import {HooksLibrary} from "@nodeboot/test";
-import {CustomHook} from "./CustomHook";
-
-export class MyCustomHooksLibrary extends HooksLibrary {
-    customHook = new CustomHook();
-
-    override registerHooks(hookManager: HookManager) {
-        super.registerHooks(hookManager);
-        hookManager.addHook(this.customHook);
-    }
-
-    override getReturnHooks() {
-        const baseHooks = super.getReturnHooks();
-        return {
-            ...baseHooks,
-            useCustom: this.customHook.use.bind(this.customHook),
-        };
-    }
-}
-
-// Use custom library
-const hooks = useNodeBoot(MyApp, setup, new MyCustomHooksLibrary());
-```
 
 ### Creating Custom Hooks
 
@@ -319,7 +443,7 @@ const hooks = useNodeBoot(MyApp, setup, new MyCustomHooksLibrary());
 import {Hook} from "@nodeboot/test";
 import {NodeBootAppView} from "@nodeboot/core";
 
-export class DatabaseHook extends Hook {
+export class CustomDatabaseHook extends Hook {
     constructor() {
         super(1); // Priority (lower numbers run first)
     }
@@ -339,6 +463,7 @@ export class DatabaseHook extends Hook {
         await this.resetDatabase();
     }
 
+    // Setup hook touse the database connection
     use() {
         return {
             getConnection: () => this.getState("connection"),
@@ -346,6 +471,7 @@ export class DatabaseHook extends Hook {
         };
     }
 
+    // Setup hook to configure database connection
     call(config: DatabaseConfig) {
         this.setState("config", config);
     }
@@ -362,6 +488,47 @@ export class DatabaseHook extends Hook {
         // Implementation
     }
 }
+```
+
+### Custom Hook Libraries
+
+Create custom hook libraries for specific testing needs:
+
+```typescript
+import {HooksLibrary} from "@nodeboot/test";
+// Import Jest-specific Hooks library if using Jest
+import {JestHooksLibrary} from "@nodeboot/jest";
+import {CustomHook} from "./CustomHook";
+
+export class MyCustomHooksLibrary extends JestHooksLibrary {
+    customHook = new CustomDatabaseHook();
+
+    override registerHooks(hookManager: HookManager) {
+        super.registerHooks(hookManager);
+        hookManager.addHook(this.customHook);
+    }
+
+    override getSetupHooks(): JestSetUpHooks {
+        // Make sure to include base setup hooks
+        const baseHooks = super.getSetupHooks();
+        return {
+            ...baseHooks,
+            useCustom: this.customHook.call.bind(this.customHook),
+        };
+    }
+
+    override getReturnHooks() {
+        // Make sure to include base return hooks
+        const baseHooks = super.getReturnHooks();
+        return {
+            ...baseHooks,
+            useCustom: this.customHook.use.bind(this.customHook),
+        };
+    }
+}
+
+// Use custom library
+const hooks = useNodeBoot(MyApp, setup, new MyCustomHooksLibrary());
 ```
 
 ### Multi-Server Testing
@@ -469,20 +636,26 @@ useMock(PaymentGateway, {charge: jest.fn()}); // External
 
 ```typescript
 // Use environment-specific configs
-const testConfig = {
-    app: {port: 0}, // Use random port
-    database: {url: process.env.TEST_DB_URL || "sqlite::memory:"},
-    redis: {host: "localhost", port: 6380}, // Test Redis instance
-    external: {
-        apiKey: "test-key",
-        baseUrl: "http://localhost:8080", // Mock server
-    },
-};
+useNodeBoot(AppUnderTest, ({useConfig}) => {
+    useConfig({
+        app: {
+            port: 20000,
+        },
+        database: {url: process.env.TEST_DB_URL || "sqlite::memory:"},
+        redis: {host: "localhost", port: 6380}, // Test Redis instance
+        external: {
+            apiKey: "test-key",
+            baseUrl: "http://localhost:8080", // Mock server
+        },
+    });
+});
 ```
 
 ### 4. Data Management
 
 ```typescript
+const {useRepository} = useNodeBoot(AppUnderTest);
+
 // Clean slate for each test
 beforeEach(async () => {
     const db = useRepository(DatabaseRepository);
@@ -494,6 +667,8 @@ beforeEach(async () => {
 ### 5. Async Testing
 
 ```typescript
+const {useService} = useNodeBoot(AppUnderTest);
+
 it("should handle async operations", async () => {
     const service = useService(AsyncService);
 
@@ -583,6 +758,8 @@ const {useHttp} = useNodeBoot(MyApp);
 ### Adding New Hooks
 
 When adding new testing capabilities, create hooks that follow the framework patterns and integrate with the lifecycle system.
+
+> See [Jest Custom Hooks](../jest/README.md) for a concrete example.
 
 ## License
 

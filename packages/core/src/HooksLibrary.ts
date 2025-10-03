@@ -6,6 +6,7 @@ import {
     ConfigHook,
     EnvHook,
     HttpClientHook,
+    MetricsHook,
     MockHook,
     PactumHook,
     RepositoryHook,
@@ -31,6 +32,7 @@ export type ReturnHooks = {
     useService: ServiceHook["use"];
     useRepository: RepositoryHook["use"];
     useSupertest: SupertestHook["use"];
+    useMetrics: MetricsHook["use"];
 };
 
 export class HooksLibrary {
@@ -45,6 +47,7 @@ export class HooksLibrary {
     serviceHook = new ServiceHook();
     repositoryHook = new RepositoryHook();
     supertestHook = new SupertestHook();
+    metricsHook = new MetricsHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
@@ -58,6 +61,7 @@ export class HooksLibrary {
         hookManager.addHook(this.serviceHook);
         hookManager.addHook(this.repositoryHook);
         hookManager.addHook(this.supertestHook);
+        hookManager.addHook(this.metricsHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -81,6 +85,7 @@ export class HooksLibrary {
             useService: this.serviceHook.use.bind(this.serviceHook),
             useRepository: this.repositoryHook.use.bind(this.repositoryHook),
             useSupertest: this.supertestHook.use.bind(this.supertestHook),
+            useMetrics: this.metricsHook.use.bind(this.metricsHook),
         };
     }
 
