@@ -12,6 +12,8 @@ A comprehensive, extensible testing framework for NodeBoot applications that pro
 6. [Best Practices](#best-practices)
 7. [Troubleshooting](#troubleshooting)
 8. [Migration Guide](#migration-guide)
+9. [Hook Reference](#hook-reference)
+10. [Advanced Usage](#advanced-usage)
 
 ## Architecture Overview
 
@@ -19,20 +21,20 @@ The NodeBoot Test Framework follows a layered, plugin-based architecture designe
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                Test Runner Integration                   │
-│            (Jest, Mocha, Vitest, etc.)                 │
+│                Test Runner Integration                  │
+│            (Jest, Mocha, Vitest, etc.)                  │
 ├─────────────────────────────────────────────────────────┤
 │              Custom Hook Libraries                      │
-│       (JestHooksLibrary, MochaHooksLibrary, etc.)      │
+│       (JestHooksLibrary, MochaHooksLibrary, etc.)       │
 ├─────────────────────────────────────────────────────────┤
 │                 Core Framework                          │
-│    (NodeBootTestFramework, HookManager, HooksLibrary)  │
+│    (NodeBootTestFramework, HookManager, HooksLibrary)   │
 ├─────────────────────────────────────────────────────────┤
 │                   Hook System                           │
-│        (Hook base class, lifecycle phases)             │
+│        (Hook base class, lifecycle phases)              │
 ├─────────────────────────────────────────────────────────┤
 │               NodeBoot Application                      │
-│         (IoC Container, Services, Config)              │
+│         (IoC Container, Services, Config)               │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -585,12 +587,6 @@ afterAll(async () => {
 // After (NodeBoot Test Framework)
 const {useHttp} = useNodeBoot(MyApp);
 ```
-
-### Adding New Hooks
-
-When adding new testing capabilities, create hooks that follow the framework patterns and integrate with the lifecycle system.
-
-> See [Jest Custom Hooks](../jest/README.md) for a concrete example.
 
 ## Hook Reference
 
