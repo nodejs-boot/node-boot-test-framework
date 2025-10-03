@@ -1,5 +1,11 @@
 # @nodeboot/jest-express-demo
 
+## 1.4.0
+
+### Minor Changes
+
+-   New home for the NodeBoot Tests Framework
+
 ## 1.3.1
 
 ### Patch Changes

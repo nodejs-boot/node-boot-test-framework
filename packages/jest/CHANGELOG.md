@@ -1,5 +1,16 @@
 # @nodeboot/jest
 
+## 1.4.0
+
+### Minor Changes
+
+-   New home for the NodeBoot Tests Framework
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@1.5.0
+
 ## 1.3.1
 
 ### Patch Changes

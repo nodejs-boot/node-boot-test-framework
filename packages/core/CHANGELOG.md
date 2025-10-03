@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 1.5.0
+
+### Minor Changes
+
+-   New home for the NodeBoot Tests Framework
+
 ## 1.4.1
 
 ### Patch Changes
