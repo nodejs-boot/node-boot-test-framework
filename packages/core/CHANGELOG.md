@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 1.6.0
+
+### Minor Changes
+
+-   Extend test framework to provide proper logging
+
 ## 1.5.0
 
 ### Minor Changes

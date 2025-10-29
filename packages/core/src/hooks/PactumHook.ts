@@ -1,6 +1,7 @@
 import pactum from "pactum";
 import {NodeBootAppView} from "@nodeboot/core";
 import {Hook} from "./Hook";
+import {useLogger} from "../utils/useLogger";
 
 /**
  * The `PactumHook` class integrates Pactum's HTTP testing features with NodeBoot.
@@ -16,7 +17,7 @@ export class PactumHook extends Hook {
         const address = this.getState<string>("baseUrl") ?? `http://localhost:${bootApp.appOptions.port}`;
         pactum.request.setBaseUrl(address);
         pactum.request.setDefaultTimeout(15000);
-        console.log(`Pactum base URL set to ${address}`);
+        bootApp.logger.debug(`Pactum base URL set to ${address}`);
     }
 
     /**
@@ -24,15 +25,16 @@ export class PactumHook extends Hook {
      */
     override async afterTests() {
         pactum.request.setBaseUrl(""); // Clear the base URL
-        console.log("Pactum configuration has been reset after tests.");
+        useLogger().debug("Pactum configuration has been reset after tests.");
     }
 
     call(baseUrl?: string) {
+        const logger = useLogger();
         this.setState("baseUrl", baseUrl);
         if (baseUrl) {
-            console.log(`Pactum hook called with baseUlr ${baseUrl}`);
+            logger.debug(`Pactum hook called with baseUlr ${baseUrl}`);
         } else {
-            console.log(`Pactum hook called without baseUlr. Should use Node-Boot App server address.`);
+            logger.debug(`Pactum hook called without baseUlr. Should use Node-Boot App server address.`);
         }
     }
 }

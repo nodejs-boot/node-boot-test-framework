@@ -68,12 +68,12 @@ export class UserService {
     constructor(private readonly logger: Logger, private readonly userRepository: UserRepository) {}
 
     public async findAllUser(): Promise<UserEntity[]> {
-        this.logger.info("Getting all users");
+        this.logger.debug("Getting all users");
         return this.userRepository.find();
     }
 
     public async getUserById(id: string): Promise<UserEntity> {
-        this.logger.info(`Getting user for ID ${id}`);
+        this.logger.debug(`Getting user for ID ${id}`);
         return {
             id,
             name: `User ${id}`,

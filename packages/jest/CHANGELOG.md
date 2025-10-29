@@ -1,5 +1,12 @@
 # @nodeboot/jest
 
+## 1.4.1
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@1.6.0
+
 ## 1.4.0
 
 ### Minor Changes

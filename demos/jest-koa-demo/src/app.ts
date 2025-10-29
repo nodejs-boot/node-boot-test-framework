@@ -63,7 +63,7 @@ class NoTransformResponseController {
 
     @Get("/ping")
     ping() {
-        this.logger.info("Ping to services");
+        this.logger.debug("Ping to services");
         return {
             serviceA: this.serviceA.doSomething(),
             serviceN: this.serviceN.doSomethingElse(),
@@ -72,25 +72,25 @@ class NoTransformResponseController {
 
     @Post("/default")
     default(@Body() user: UserModel) {
-        this.logger.info("Getting default");
+        this.logger.debug("Getting default");
         return handler(user);
     }
 
     @Post("/noTransform", {transformRequest: false, transformResponse: false})
     noTransform(@Body() user: UserModel) {
-        this.logger.info("call noTransform");
+        this.logger.debug("call noTransform");
         return handler(user);
     }
 
     @Post("/transformRequestOnly", {transformRequest: true, transformResponse: false})
     transformRequestOnly(@Body() user: UserModel) {
-        this.logger.info("call transformRequestOnly");
+        this.logger.debug("call transformRequestOnly");
         return handler(user);
     }
 
     @Post("/transformResponseOnly", {transformRequest: false, transformResponse: true})
     transformResponseOnly(@Body() user: UserModel) {
-        this.logger.info("call transformResponseOnly");
+        this.logger.debug("call transformResponseOnly");
         return handler(user);
     }
 }

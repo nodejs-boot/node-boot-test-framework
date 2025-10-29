@@ -17,7 +17,7 @@ describe("Sample Node-Boot Test", () => {
                 //doSomething: jest.fn(() => "Mocked ServiceA result")
             });
 
-            useEnv({NODE_ENV: "test", FEATURE_FLAG: "true"});
+            useEnv({NODE_ENV: "test", FEATURE_FLAG: "true", LOG_LEVEL: "warning"});
 
             useConfig({
                 app: {

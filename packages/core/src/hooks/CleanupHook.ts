@@ -1,4 +1,5 @@
 import {Hook} from "./Hook";
+import {useLogger} from "../utils/useLogger";
 
 type CleanUpOptions = {
     afterAll?: () => void;
@@ -66,22 +67,23 @@ export class CleanupHook extends Hook {
      * @returns {Promise<void>} A promise that resolves when all cleanup functions have been executed.
      */
     override async afterTests(): Promise<void> {
-        console.log("Running cleanup after tests.");
+        const logger = useLogger();
+        logger.debug("Running cleanup after tests.");
 
         // Iterate over each registered cleanup function and execute it
         for (const cleanupFn of this.globalCleanupFunctions) {
             try {
                 cleanupFn(); // Call the cleanup function
-                console.log("Cleanup function executed successfully.");
+                logger.debug("Cleanup function executed successfully.");
             } catch (error) {
-                console.error("Error during cleanup:", error); // Log errors if any
+                logger.error("Error during cleanup:", error); // Log errors if any
             }
         }
 
         // Clear the cleanup functions array after execution to prevent re-running them
         this.globalCleanupFunctions = [];
         this.cleanupFunctions = [];
-        console.log("Completed cleanup after tests.");
+        logger.debug("Completed cleanup after tests.");
     }
 
     /**
@@ -95,18 +97,19 @@ export class CleanupHook extends Hook {
      * @returns {Promise<void>} A promise that resolves when all cleanup functions have been executed.
      */
     override async afterEachTest(): Promise<void> {
-        console.log("Running cleanup after each test.");
+        const logger = useLogger();
+        logger.debug("Running cleanup after each test.");
 
         // Iterate over each registered cleanup function and execute it
         for (const cleanupFn of this.cleanupFunctions) {
             try {
                 cleanupFn(); // Call the cleanup function
-                console.log("Cleanup function executed successfully.");
+                logger.debug("Cleanup function executed successfully.");
             } catch (error) {
-                console.error("Error during cleanup:", error);
+                logger.error("Error during cleanup:", error);
             }
         }
 
-        console.log("Completed cleanup after each test.");
+        logger.debug("Completed cleanup after each test.");
     }
 }

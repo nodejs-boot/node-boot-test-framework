@@ -1,6 +1,7 @@
 import axios, {AxiosInstance} from "axios";
 import {NodeBootAppView} from "@nodeboot/core";
 import {Hook} from "./Hook";
+import {useLogger} from "../utils/useLogger";
 
 /**
  * The `HttpClientHook` class manages multiple HTTP client instances, each cached by its base URL.
@@ -21,7 +22,7 @@ export class HttpClientHook extends Hook {
      */
     override async afterTests() {
         this.clients.clear(); // Clear all cached clients
-        console.log("All HTTP clients have been reset after tests.");
+        useLogger().debug("All HTTP clients have been reset after tests.");
     }
 
     use(baseURL?: string) {

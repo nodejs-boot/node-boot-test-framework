@@ -1,4 +1,5 @@
 import {Hook} from "./Hook";
+import {useLogger} from "../utils/useLogger";
 
 /**
  * A hook for collecting and reporting test metrics and performance data.
@@ -179,13 +180,14 @@ export class MetricsHook extends Hook {
      * Shows average, minimum, and maximum values for numeric metrics.
      */
     private generateReport() {
-        console.log("\n=== Test Metrics Report ===");
+        const logger = useLogger();
+        logger.debug("\n=== Test Metrics Report ===");
         for (const [name, values] of this.metrics) {
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
             const min = Math.min(...values);
             const max = Math.max(...values);
-            console.log(`${name}: avg=${avg.toFixed(2)}ms, min=${min}ms, max=${max}ms`);
+            logger.debug(`${name}: avg=${avg.toFixed(2)}ms, min=${min}ms, max=${max}ms`);
         }
-        console.log("===========================\n");
+        logger.debug("===========================\n");
     }
 }
