@@ -28,12 +28,13 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
         // Run all `runBeforeStart` hooks
         logger.info("Starting runBeforeAll hooks lifecycle...");
         await this.hookManager.runBeforeStart();
+        const testConfig = this.hookManager.getTestConfig();
         logger.info("Completed runBeforeAll hooks lifecycle.");
 
         // Start the application
         logger.info("Starting application instance...");
         this.appInstance = new this.AppClass();
-        this.bootAppView = await this.appInstance.start(this.hooksLibrary.getConfigHook().getState("config"));
+        this.bootAppView = await this.appInstance.start(testConfig);
 
         binAppLogger(this.bootAppView);
         logger.info("Application instance started.");

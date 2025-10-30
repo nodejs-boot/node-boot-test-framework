@@ -1,9 +1,11 @@
 import {Hook} from "./hooks";
 import {NodeBootAppView} from "@nodeboot/core";
 import {useLogger} from "./utils/useLogger";
+import {JsonObject} from "@nodeboot/context";
 
 export class HookManager {
     private hooks: Hook[] = [];
+    private testConfig: JsonObject = {};
 
     addHook(hook: Hook) {
         this.hooks.push(hook);
@@ -18,7 +20,7 @@ export class HookManager {
 
         useLogger().debug("Running beforeStart phase for all hooks.");
         for (const hook of this.hooks) {
-            await hook.beforeStart();
+            await hook.beforeStart(this.testConfig);
         }
         useLogger().debug("Completed beforeStart phase.");
     }
@@ -61,5 +63,9 @@ export class HookManager {
             await hook.afterEachTest();
         }
         useLogger().debug("Completed afterEachTest phase.");
+    }
+
+    getTestConfig(): JsonObject {
+        return this.testConfig;
     }
 }

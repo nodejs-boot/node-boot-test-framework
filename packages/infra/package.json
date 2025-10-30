@@ -1,0 +1,59 @@
+{
+    "name": "@nodeboot/test-infra",
+    "version": "0.1.0",
+    "description": "Node-Boot test framework extension supporting infrastructure and containers",
+    "author": "Manuel Santos <ney.br.santos@gmail.com>",
+    "license": "MIT",
+    "keywords": [
+        "tests",
+        "node-boot",
+        "testcontainers",
+        "in-memory-db"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nodejs-boot/node-boot-test-framework.git"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "clean:build": "rimraf ./dist",
+        "dev": "nodemon",
+        "lint": "eslint . --ext .js,.ts",
+        "lint:fix": "pnpm lint --fix",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write .",
+        "test": "jest --passWithNoTests",
+        "typecheck": "tsc"
+    },
+    "dependencies": {
+        "@nodeboot/context": "^1.13.0",
+        "@nodeboot/core": "^1.15.0",
+        "@nodeboot/test": "workspace:*"
+    },
+    "peerDependencies": {
+        "mongodb-memory-server": "^10.1.4",
+        "mongodb": "^6.8.0"
+    },
+    "peerDependenciesMeta": {
+        "mongodb-memory-server": {
+            "optional": true
+        },
+        "mongodb": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@types/node": "^22.13.4"
+    },
+    "files": [
+        "dist",
+        "package.json",
+        "README.md",
+        "config.d.ts"
+    ]
+}

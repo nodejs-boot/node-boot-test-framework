@@ -1,4 +1,5 @@
 import {NodeBootAppView} from "@nodeboot/core";
+import {JsonObject} from "@nodeboot/context";
 
 export abstract class Hook {
     private readonly priority: number;
@@ -21,8 +22,8 @@ export abstract class Hook {
         return this.priority;
     }
 
-    beforeStart(): Promise<void> | void {
-        // Implemented in concrete hooks when required
+    beforeStart(_testConfig: JsonObject): Promise<void> | void {
+        // Implemented in concrete hooks when required; hooks can mutate _config directly
     }
 
     afterStart(_: NodeBootAppView): Promise<void> | void {

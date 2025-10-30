@@ -5,8 +5,12 @@ import {ConfigService} from "@nodeboot/config";
 export class ConfigHook extends Hook {
     private configs: JsonObject[] = [];
 
-    override beforeStart() {
-        const mergedConfig = Object.assign({}, ...this.configs);
+    constructor() {
+        super(-1);
+    }
+
+    override beforeStart(testConfig: JsonObject) {
+        const mergedConfig = Object.assign(testConfig, ...this.configs);
         this.setState("config", mergedConfig);
     }
 

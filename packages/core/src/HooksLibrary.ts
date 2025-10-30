@@ -88,8 +88,4 @@ export class HooksLibrary {
             useMetrics: this.metricsHook.use.bind(this.metricsHook),
         };
     }
-
-    getConfigHook() {
-        return this.configHook;
-    }
 }
