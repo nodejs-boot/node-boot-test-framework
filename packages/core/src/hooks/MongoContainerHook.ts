@@ -42,9 +42,10 @@ export class MongoContainerHook extends Hook {
 
         logger.info(`[MongoContainerHook] Starting MongoDB container (${image})...`);
 
+        const home = process.env["HOME"];
         process.env["TESTCONTAINERS_RYUK_DISABLED"] = "true";
-        process.env["DOCKER_HOST"] = "unix:///Users/santoman/.colima/default/docker.sock"; //"unix://${HOME}/.colima/default/docker.sock";
-        process.env["TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE"] = "/Users/santoman/.colima/default/docker.sock";
+        process.env["DOCKER_HOST"] = `unix://${home}/.colima/default/docker.sock`; //"unix://${HOME}/.colima/default/docker.sock";
+        process.env["TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE"] = `unix://${home}/.colima/default/docker.sock`;
 
         const container = await new GenericContainer(image)
             .withExposedPorts(port)
