@@ -42,6 +42,7 @@
         "build:patch": {},
         "build:minor": {},
         "build:major": {},
+        "nodeboot:update": {},
         "test": {
             "dependsOn": ["build"]
         },

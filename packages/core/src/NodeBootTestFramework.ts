@@ -1,7 +1,7 @@
 import {NodeBootApp, NodeBootAppView} from "@nodeboot/core";
 import {HookManager} from "./HookManager";
 import {HooksLibrary} from "./HooksLibrary";
-import {ApplicationContext} from "@nodeboot/context";
+import {ApplicationContext, ApplicationLifecycleBridge} from "@nodeboot/context";
 import {binAppLogger, useLogger} from "./utils/useLogger";
 
 export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extends HooksLibrary = HooksLibrary> {
@@ -35,6 +35,13 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
         logger.info("Starting application instance...");
         this.appInstance = new this.AppClass();
         this.bootAppView = await this.appInstance.start(testConfig);
+
+        // Wait until persistence layer is fully started
+        const applicationLifecycle = ApplicationContext.getIocContainer()?.get(ApplicationLifecycleBridge);
+        await applicationLifecycle?.awaitEvent("persistence.started");
+
+        // Give event loop a chance to finish pending microtasks
+        await new Promise(r => setImmediate(r));
 
         binAppLogger(this.bootAppView);
         logger.info("Application instance started.");

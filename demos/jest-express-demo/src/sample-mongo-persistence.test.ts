@@ -1,18 +1,27 @@
 import {useNodeBoot} from "@nodeboot/jest";
 import {spec} from "pactum";
-import {TestAppWithPersistence, UserModel, UserRepository} from "./app-with-persistence";
+import {TestAppWithMongoPersistence, UserModel, UserRepository} from "./app-with-mongo-persistence";
+
+jest.mock("typeorm-transactional", () => ({
+    Transactional: () => (_target: any, _propertyKey: string, _descriptor: PropertyDescriptor) => {},
+}));
 
 /**
  * A test suite demonstrating the usage of useNodeBoot framework for testing NodeBoot
  * applications with dependency injection and mocking capabilities.
  * */
 describe("Sample Node-Boot Persistence Test", () => {
-    const {useSpy, useRepository} = useNodeBoot(TestAppWithPersistence, ({useConfig, usePactum, useCleanup}) => {
+    const {useSpy, useRepository} = useNodeBoot(TestAppWithMongoPersistence, ({useConfig, usePactum, useCleanup}) => {
         useConfig({
             app: {
                 port: 20000,
             },
         });
+
+        /*  useMongoContainer({
+            dbName: "test-db",
+            image: "mongo:8"
+        });*/
 
         usePactum();
 
@@ -29,6 +38,13 @@ describe("Sample Node-Boot Persistence Test", () => {
 
     describe("API Tests", () => {
         it("should retrieve data from API", async () => {
+            const userRepository = useRepository(UserRepository);
+            const users = await userRepository.find({});
+
+            expect(users).toBeDefined();
+        });
+
+        it("should retrieve data from API", async () => {
             const response = await spec()
                 .get(`/api/users/`)
                 .expectStatus(200)
@@ -44,7 +60,7 @@ describe("Sample Node-Boot Persistence Test", () => {
                 .withBody({
                     name: "Manuel Santos",
                     email: "ney.br.santos@gmail.com",
-                    password: "1234568888",
+                    password: "123456",
                 })
                 .expectStatus(200)
                 .returns<Promise<UserModel>>("res.body");
@@ -66,7 +82,7 @@ describe("Sample Node-Boot Persistence Test", () => {
             const user = await repository.save({
                 name: "Manuel Santos",
                 email: "ney.br.santos@gmail.com",
-                password: "12345699999",
+                password: "123456",
             });
 
             expect(user.id).toBeDefined();
@@ -92,7 +108,7 @@ describe("Sample Node-Boot Persistence Test", () => {
                 .withBody({
                     name: "Manuel Santos",
                     email: "ney.br.santos@gmail.com",
-                    password: "12345688889999999",
+                    password: "123456",
                 })
                 .expectStatus(200)
                 .returns<Promise<UserModel>>("res.body");

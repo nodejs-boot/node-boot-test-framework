@@ -8,6 +8,7 @@ import {
     HttpClientHook,
     MetricsHook,
     MockHook,
+    MongoContainerHook,
     PactumHook,
     RepositoryHook,
     ServiceHook,
@@ -22,6 +23,7 @@ export type SetUpHooks = {
     useEnv: EnvHook["call"];
     useCleanup: CleanupHook["call"];
     usePactum: PactumHook["call"];
+    useMongoContainer: MongoContainerHook["call"];
 };
 
 export type ReturnHooks = {
@@ -33,6 +35,7 @@ export type ReturnHooks = {
     useRepository: RepositoryHook["use"];
     useSupertest: SupertestHook["use"];
     useMetrics: MetricsHook["use"];
+    useMongoContainer: MongoContainerHook["use"];
 };
 
 export class HooksLibrary {
@@ -48,6 +51,7 @@ export class HooksLibrary {
     repositoryHook = new RepositoryHook();
     supertestHook = new SupertestHook();
     metricsHook = new MetricsHook();
+    mongoContainerHook = new MongoContainerHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
@@ -62,6 +66,7 @@ export class HooksLibrary {
         hookManager.addHook(this.repositoryHook);
         hookManager.addHook(this.supertestHook);
         hookManager.addHook(this.metricsHook);
+        hookManager.addHook(this.mongoContainerHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -73,6 +78,7 @@ export class HooksLibrary {
             useAddress: this.addressHook.call.bind(this.addressHook),
             useCleanup: this.cleanupHook.call.bind(this.cleanupHook),
             usePactum: this.pactumHook.call.bind(this.pactumHook),
+            useMongoContainer: this.mongoContainerHook.call.bind(this.mongoContainerHook),
         };
     }
 
@@ -86,6 +92,7 @@ export class HooksLibrary {
             useRepository: this.repositoryHook.use.bind(this.repositoryHook),
             useSupertest: this.supertestHook.use.bind(this.supertestHook),
             useMetrics: this.metricsHook.use.bind(this.metricsHook),
+            useMongoContainer: this.mongoContainerHook.use.bind(this.mongoContainerHook),
         };
     }
 }

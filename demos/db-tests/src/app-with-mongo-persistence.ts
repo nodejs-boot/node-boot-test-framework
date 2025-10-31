@@ -20,15 +20,15 @@ import {
 import {EnableDI} from "@nodeboot/di";
 import {Logger} from "winston";
 import {JsonObject} from "@nodeboot/context";
-import {Column, Entity, PrimaryGeneratedColumn, Repository} from "typeorm";
-import {DataRepository, EnableRepositories, Transactional} from "@nodeboot/starter-persistence";
+import {Column, Entity, ObjectIdColumn, Repository} from "typeorm";
+import {DataRepository, EnableRepositories} from "@nodeboot/starter-persistence";
 import {IsEmail, IsNotEmpty, IsString, MaxLength, MinLength} from "class-validator";
 import {HttpError} from "@nodeboot/error";
 import {ExpressServer} from "@nodeboot/express-server";
 
 @Entity()
 export class UserEntity {
-    @PrimaryGeneratedColumn()
+    @ObjectIdColumn()
     id: string;
 
     @Column()
@@ -69,15 +69,10 @@ export class UserService {
 
     public async getUserById(id: string): Promise<UserEntity> {
         this.logger.debug(`Getting user for ID ${id}`);
-        return {
-            id,
-            name: `User ${id}`,
-            email: "user@nodeboot.io",
-            password: "encrypted",
-        };
+        const existingUser = await this.userRepository.findOneById(id);
+        return optionalOf(existingUser).orElseThrow(() => new HttpError(404, `User with ID ${id} not found`));
     }
 
-    @Transactional()
     public async createUser(userData: UserModel): Promise<UserEntity> {
         const existingUser = await this.userRepository.findOneBy({
             email: userData.email,
@@ -90,7 +85,6 @@ export class UserService {
         return this.userRepository.save(userData);
     }
 
-    @Transactional()
     public async deleteUser(userId: string): Promise<void> {
         const user = await this.userRepository.findOneBy({
             id: userId,
@@ -99,8 +93,6 @@ export class UserService {
         optionalOf(user).orElseThrow(() => new HttpError(409, "User doesn't exist"));
 
         await this.userRepository.delete({id: userId});
-
-        throw new Error("Error after deleting that should rollback transaction");
     }
 }
 
@@ -115,7 +107,8 @@ class UserController {
 
     @Get("/")
     async getUsers(): Promise<UserEntity[]> {
-        return this.userService.findAllUser();
+        const result = await this.userService.findAllUser();
+        return result;
     }
 
     @Post("/")
@@ -143,7 +136,7 @@ export class ClassTransformConfiguration {}
 @NodeBootApplication()
 @Controllers([UserController])
 @EnableRepositories()
-export class TestAppWithPersistence implements NodeBootApp {
+export class TestAppWithMongoPersistence implements NodeBootApp {
     start(additionalConfig?: JsonObject): Promise<NodeBootAppView> {
         return NodeBoot.run(ExpressServer, additionalConfig);
     }

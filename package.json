@@ -49,6 +49,7 @@
         "format:check": "prettier --check '{packages,samples,servers,starters,tests}/**/{package.json,src/*.tsx,src/*.ts}'",
         "format:fix": "prettier --write '{packages,samples,servers,starters,tests}/**/{package.json,src/*.tsx,src/*.ts}'",
         "git:prune": "git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done",
+        "nodeboot:update": "turbo run nodeboot:update",
         "npm:prune": "pnpm store prune && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
         "release:changeset": "pnpm changeset",
         "release:version": "pnpm changeset version",

@@ -30,13 +30,13 @@
         "typecheck": "tsc"
     },
     "dependencies": {
-        "@nodeboot/context": "^1.13.0",
-        "@nodeboot/core": "^1.15.0",
-        "@nodeboot/test": "workspace:*"
+        "@nodeboot/context": "^2.0.0",
+        "@nodeboot/core": "^1.15.2",
+        "@nodeboot/test": "workspace:^"
     },
     "peerDependencies": {
-        "jest": "^29.5.0",
-        "@jest/globals": "^29.5.0"
+        "@jest/globals": "^29.5.0",
+        "jest": "^29.5.0"
     },
     "devDependencies": {
         "@types/jest": "^29.5.11",

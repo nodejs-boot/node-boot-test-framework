@@ -1,0 +1,130 @@
+{
+    "nodeboot_test_framework": {
+        "entityType": "framework",
+        "name": "nodeboot_test_framework",
+        "observations": [
+            "CONTEXT: [HIGH] Node-Boot test framework provides hooks for testing Node.js applications with different web frameworks",
+            "BESTPRACTICE: [MEDIUM] Framework supports Express, Fastify, and Koa demos with consistent testing patterns",
+            "MISTAKE: [CRITICAL] Do NOT invent hooks - only use existing hooks provided by the framework",
+            "RULE: [CRITICAL] useNodeBoot first argument is the NodeBoot Application CLASS, not services or controllers",
+            "RULE: [CRITICAL] useNodeBoot second argument is SETUP HOOKS OBJECT for configuring the app under test",
+            "RULE: [CRITICAL] useNodeBoot RETURNS TEST HOOKS OBJECT for interacting with running application in tests",
+            "CONTEXT: [HIGH] Framework bootstraps the NodeBoot application server and provides test interaction hooks",
+            "RULE: [HIGH] Setup hooks configure and control the application under test before it starts",
+            "RULE: [HIGH] Test hooks are used BY TESTS to interact with the running application (call services, HTTP endpoints)",
+            "BESTPRACTICE: [HIGH] Use useMock() to selectively mock services while keeping others real",
+            "CONFIG: [HIGH] Use useConfig() to override application configuration for tests",
+            "INTEGRATION: [HIGH] Use usePactum() to enable Pactum HTTP testing integration"
+        ]
+    },
+    "nodeboot_testing_imports": {
+        "entityType": "configuration",
+        "name": "nodeboot_testing_imports",
+        "observations": [
+            "RULE: [CRITICAL] Always import 'reflect-metadata' first for decorators to work",
+            "RULE: [HIGH] Import { useNodeBoot } from '@nodeboot/jest' as main entry point",
+            "RULE: [HIGH] Import { spec } from 'pactum' for HTTP testing",
+            "RULE: [HIGH] Import { Container } from 'typedi' for IoC container",
+            "BESTPRACTICE: [HIGH] Import NodeBoot core decorators: @Service, @Controller, @Get, @Post, etc."
+        ]
+    },
+    "nodeboot_test_structure": {
+        "entityType": "pattern",
+        "name": "nodeboot_test_structure",
+        "observations": [
+            "RULE: [CRITICAL] useNodeBoot(ApplicationClass, setupHooksObject) returns testHooksObject",
+            "RULE: [CRITICAL] ApplicationClass is the main NodeBoot app class with @NodeBootApplication decorator",
+            "RULE: [CRITICAL] setupHooksObject contains setup hooks for configuration before app starts",
+            "RULE: [CRITICAL] testHooksObject contains test hooks for interacting with running app in tests",
+            "RULE: [HIGH] Services, controllers, components, interceptors, DataRepositories are APPLICATION CODE not test code",
+            "RULE: [HIGH] Tests are meant to TEST the Node-Boot application logic, not define it",
+            "BESTPRACTICE: [HIGH] Destructure needed test hooks: { useHttp, useTimer, useService, useConfig }",
+            "CONTEXT: [HIGH] Framework handles full application lifecycle automatically",
+            "RULE: [CRITICAL] useNodeBoot MUST be invoked inside a describe(...) block; never at file top-level",
+            "RULE: [CRITICAL] Repositories, controllers, services with project-defined dependencies MUST be tested via integration (not unit)",
+            "RULE: [HIGH] Unit tests are allowed ONLY for classes with no constructor dependencies or only core @nodeboot/* dependencies (logger, config, framework utilities)",
+            "RULE: [HIGH] Integration tests MUST NOT mock internal services/repositories; only external/outbound dependencies may be mocked",
+            "BESTPRACTICE: [MEDIUM] Prefer integration tests when eligibility is ambiguous; escalate rather than creating a unit test"
+        ]
+    },
+    "nodeboot_hook_reference": {
+        "entityType": "reference",
+        "name": "nodeboot_hook_reference",
+        "observations": [
+            "RULE: [HIGH] Setup hooks: useConfig, useEnv, useMock, useAddress, useAppContext, usePactum, useCleanup",
+            "RULE: [HIGH] Test hooks: useService, useRepository, useHttp, useSupertest, useConfig, useMock, useMetrics",
+            "RULE: [HIGH] Jest-specific test hooks: useSpy, useTimer (control and tracking)",
+            "RULE: [CRITICAL] useService() accesses services RUNNING INSIDE the bootstrapped application",
+            "RULE: [CRITICAL] useHttp() calls HTTP endpoints OF THE RUNNING APPLICATION",
+            "BESTPRACTICE: [HIGH] useSpy creates Jest spies on service methods for verification",
+            "BESTPRACTICE: [HIGH] useTimer provides control() for advancing time and tracking() for measuring elapsed time",
+            "CONFIG: [HIGH] useHttp returns { get, post, put, delete } methods with AxiosInstance",
+            "CONFIG: [HIGH] useSupertest returns TestAgent for HTTP testing with built-in assertions"
+        ]
+    },
+    "nodeboot_jest_integration": {
+        "entityType": "integration",
+        "name": "nodeboot_jest_integration",
+        "observations": [
+            "RULE: [HIGH] @nodeboot/jest package provides Jest-specific hooks and integrations",
+            "RULE: [HIGH] Automatic Jest lifecycle integration with beforeAll, afterAll, beforeEach, afterEach",
+            "BESTPRACTICE: [HIGH] Use useSpy(ServiceClass, methodName) to create Jest spies on service methods",
+            "BESTPRACTICE: [HIGH] Use useTimer() for control().advanceTimeBy() and tracking().calculateElapsedTime()",
+            "CONFIG: [HIGH] Jest configuration should include preset: 'ts-jest', testEnvironment: 'node'",
+            "INTEGRATION: [HIGH] Works seamlessly with Pactum via usePactum() setup hook"
+        ]
+    },
+    "nodeboot_architecture_understanding": {
+        "entityType": "architecture",
+        "name": "nodeboot_architecture_understanding",
+        "observations": [
+            "RULE: [CRITICAL] Test framework bootstraps the NodeBoot application server automatically",
+            "RULE: [CRITICAL] Application code (services, controllers, etc.) is SEPARATE from test code",
+            "RULE: [CRITICAL] Tests interact with the RUNNING APPLICATION through test hooks",
+            "CONTEXT: [HIGH] Framework creates a complete application instance for testing",
+            "CONTEXT: [HIGH] Setup hooks configure the application BEFORE it starts",
+            "CONTEXT: [HIGH] Test hooks provide ways to interact with the RUNNING application during tests",
+            "BESTPRACTICE: [HIGH] Use test hooks to call services that exist inside the running app",
+            "BESTPRACTICE: [HIGH] Use test hooks to make HTTP requests to the running app's endpoints"
+        ]
+    },
+    "nodeboot_integration_first_policy": {
+        "entityType": "policy",
+        "name": "nodeboot_integration_first_policy",
+        "observations": [
+            "POLICY: [CRITICAL] Integration-first testing: default to integration tests; repositories, controllers, and multi-dependency services never use unit tests",
+            "RULE: [CRITICAL] useNodeBoot must be inside describe scope to bind lifecycle hooks",
+            "RULE: [HIGH] Internal service/repository mocking is prohibited in integration tests (mock only external boundaries)",
+            "RULE: [HIGH] Coverage thresholds enforced: Statements ≥80%, Branches ≥70%, Functions ≥75%, Lines ≥80%",
+            "RULE: [HIGH] Decision matrix governs test type selection; repositories always Integration",
+            "BESTPRACTICE: [MEDIUM] When uncertain, choose integration over unit to avoid false isolation",
+            "MISTAKE: [HIGH] Treating a service with a project-defined collaborator as unit-testable leads to incomplete verification"
+        ]
+    },
+    "nodeboot_fixtureless_testing": {
+        "entityType": "policy",
+        "name": "nodeboot_fixtureless_testing",
+        "observations": [
+            "POLICY: [CRITICAL] No new shared fixture/builder directories; all test data defined inline within test files",
+            "RULE: [HIGH] Inline requests, responses, mocks, and spies enhance local clarity and reduce maintenance overhead",
+            "BESTPRACTICE: [MEDIUM] Use small local helper functions only if reused three or more times in the same file",
+            "MISTAKE: [MEDIUM] Introducing global fixtures increases coupling and obscures test intent",
+            "RULE: [CRITICAL] Do not create standalone utility functions/modules solely for mock data or assertion helpers; define data inline per test or as constants within the same describe scope",
+            "BESTPRACTICE: [HIGH] Reuse mock data by declaring constants at the top of the describe block (or file-level) instead of extracting to shared helper utilities",
+            "MISTAKE: [MEDIUM] Extracting mock objects/assertion wrappers to separate test util files increases indirection and obscures intent",
+            "RULE: [HIGH] Assertion patterns should be explicit within each test; avoid generic assert* helpers unless they encode complex multi-step validation unique to that file"
+        ]
+    },
+    "nodeboot_mock_data_reuse": {
+        "entityType": "policy",
+        "name": "nodeboot_mock_data_reuse",
+        "observations": [
+            "POLICY: [CRITICAL] Mock data reuse follows inline-first approach: declare shared objects/constants inside describe or file scope, not exported utility functions",
+            "RULE: [HIGH] Shared test data must remain co-located with test logic to maintain readability and reduce coupling",
+            "RULE: [HIGH] Avoid creating cross-file test data libraries; each test file owns its data definitions",
+            "BESTPRACTICE: [MEDIUM] Group related mock objects (e.g., request bodies, expected responses) at top of describe with clear naming",
+            "MISTAKE: [HIGH] Using helper factories for simple static structures adds unnecessary abstraction",
+            "PREVENTION: [MEDIUM] Keep assertions explicit; only encapsulate repeated multi-step verification if readability improves and scope remains local"
+        ]
+    }
+}
