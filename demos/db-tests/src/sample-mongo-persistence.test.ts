@@ -1,6 +1,5 @@
 import {useNodeBoot} from "@nodeboot/jest";
 import {TestAppWithMongoPersistence, UserRepository} from "./app-with-mongo-persistence";
-import {MongoClient} from "mongodb";
 import {beforeAll} from "@jest/globals";
 
 /**
@@ -40,22 +39,7 @@ describe("Sample Node-Boot Persistence Test", () => {
         },
     );
 
-    test("mongo driver test", async () => {
-        const client = new MongoClient(
-            "mongodb+srv://tech-insights-admin:nq2zRhocHw9tDVGN@tech-insights.kav6j.mongodb.net/?retryWrites=true&w=majority&appName=tech-insights",
-        );
-        await client.connect();
-        console.log("✅ Connected");
-
-        const db = client.db("test-db");
-        const res = await db.collection("users").find({}).toArray();
-        console.log("✅ Query returned:", res);
-
-        await client.close();
-        console.log("✅ Closed connection");
-    });
-
-    it("should retrieve data from API", async () => {
+    it("should retrieve data from repository", async () => {
         const userRepository = useRepository(UserRepository);
         const users = await userRepository.find({});
 
