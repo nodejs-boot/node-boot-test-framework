@@ -1,1 +1,2 @@
-export {useNodeBoot} from "./useNodeBoot";
+import {useNodeBoot} from "./useNodeBoot";
+export {useNodeBoot};

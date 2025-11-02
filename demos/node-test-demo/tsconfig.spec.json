@@ -1,13 +1,11 @@
 {
-    "extends": "./tsconfig.json",
+    "extends": "../../tsconfig.base.json",
+    "include": ["src/**/*"],
     "compilerOptions": {
-        "strict": false,
-        "strictPropertyInitialization": false,
-        "sourceMap": true,
-        "removeComments": true,
-        "noImplicitAny": false,
-        "allowSyntheticDefaultImports": true,
-        "noUnusedLocals": false
-    },
-    "exclude": ["node_modules"]
+        "lib": ["esnext", "dom"],
+        "skipLibCheck": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "allowJs": false
+    }
 }

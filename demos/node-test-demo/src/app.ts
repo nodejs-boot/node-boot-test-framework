@@ -4,6 +4,7 @@ import {
     Body,
     ClassToPlainTransform,
     Controller,
+    Controllers,
     Delete,
     EnableClassTransformer,
     Get,
@@ -20,7 +21,6 @@ import {EnableDI} from "@nodeboot/di";
 import {JsonObject} from "@nodeboot/context";
 import {DataRepository, EnableRepositories} from "@nodeboot/starter-persistence";
 import {ExpressServer} from "@nodeboot/express-server";
-import {EnableComponentScan} from "@nodeboot/aot";
 import {Column, Entity, ObjectIdColumn, Repository} from "typeorm";
 import {IsEmail, IsNotEmpty, IsString, MaxLength, MinLength} from "class-validator";
 import {Logger} from "winston";
@@ -132,8 +132,8 @@ export class UserController {
 export class ClassTransformConfiguration {}
 
 @EnableDI(Container)
-@EnableComponentScan()
 @NodeBootApplication()
+@Controllers([UserController])
 @EnableRepositories()
 export class TestAppWithMongoPersistence implements NodeBootApp {
     start(additionalConfig?: JsonObject): Promise<NodeBootAppView> {

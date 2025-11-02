@@ -3,12 +3,6 @@
     "include": ["src/**/*"],
     "compilerOptions": {
         "lib": ["esnext", "dom"],
-        "module": "ESNext",
-        "target": "ES2022",
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
+        "allowJs": false
     }
 }
