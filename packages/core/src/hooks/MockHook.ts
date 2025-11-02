@@ -34,37 +34,44 @@ export class MockHook extends Hook {
     use<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) {
         const iocContainer = ApplicationContext.getIocContainer();
         const originalInstance = iocContainer?.get(serviceClass);
+        if (!iocContainer) throw new Error("IoC container not found.");
+        if (!originalInstance) throw new Error(`Service instance for ${serviceClass.name} not found.`);
 
-        if (!iocContainer) {
-            throw new Error("IoC container not found.");
-        }
+        const originalValues: Record<string | symbol, any> = {};
+        const callMeta: Record<string | symbol, {callCount: number; calls: any[][]}> = {};
 
-        if (!originalInstance) {
-            throw new Error(`Service instance for ${serviceClass.name} not found.`);
-        }
-
-        const originalMethods: Partial<T> = {};
-
-        // Patch methods provided in the mock
-        Object.keys(mock).forEach(key => {
-            const methodName = key as keyof T;
-
-            if (typeof mock[methodName] === "function") {
-                originalMethods[methodName] = originalInstance[methodName];
-                (originalInstance[methodName] as any) = mock[methodName]!;
+        Object.keys(mock).forEach(k => {
+            const key = k as keyof T & string;
+            const replacement = mock[key];
+            originalValues[key] = (originalInstance as any)[key];
+            if (typeof replacement === "function") {
+                callMeta[key] = {callCount: 0, calls: []};
+                (originalInstance as any)[key] = (...args: any[]) => {
+                    const meta = callMeta[key];
+                    meta.callCount++;
+                    meta.calls.push(args);
+                    return (replacement as Function).apply(originalInstance, args);
+                };
+            } else if (replacement !== undefined) {
+                (originalInstance as any)[key] = replacement;
             }
         });
 
-        // Register a restore function
         const restoreFn = () => {
-            Object.keys(originalMethods).forEach(key => {
-                const methodName = key as keyof T;
-                (originalInstance[methodName] as any) = originalMethods[methodName];
+            Object.keys(originalValues).forEach(k => {
+                (originalInstance as any)[k] = originalValues[k];
             });
         };
+        this.mocks.push(restoreFn);
 
         return {
             restore: restoreFn,
+            getMethodMeta(name: keyof T & string) {
+                return callMeta[name];
+            },
+            get allMeta() {
+                return callMeta;
+            },
         };
     }
 

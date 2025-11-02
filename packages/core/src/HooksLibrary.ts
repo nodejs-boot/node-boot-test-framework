@@ -12,6 +12,8 @@ import {
     PactumHook,
     RepositoryHook,
     ServiceHook,
+    SpyHook,
+    TimerHook,
 } from "./hooks";
 import {SupertestHook} from "./hooks/SupertestHook";
 
@@ -31,6 +33,8 @@ export type ReturnHooks = {
     useHttp: HttpClientHook["use"];
     useAppContext: AppContextHook["use"];
     useMock: MockHook["use"];
+    useSpy: SpyHook["use"];
+    useTimer: TimerHook["use"];
     useService: ServiceHook["use"];
     useRepository: RepositoryHook["use"];
     useSupertest: SupertestHook["use"];
@@ -41,6 +45,7 @@ export type ReturnHooks = {
 export class HooksLibrary {
     appContextHook = new AppContextHook();
     mockHook = new MockHook();
+    spyHook = new SpyHook();
     configHook = new ConfigHook();
     envHook = new EnvHook();
     addressHook = new AddressHook();
@@ -52,10 +57,12 @@ export class HooksLibrary {
     supertestHook = new SupertestHook();
     metricsHook = new MetricsHook();
     mongoContainerHook = new MongoContainerHook();
+    timerHook = new TimerHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
         hookManager.addHook(this.mockHook);
+        hookManager.addHook(this.spyHook);
         hookManager.addHook(this.configHook);
         hookManager.addHook(this.envHook);
         hookManager.addHook(this.addressHook);
@@ -67,6 +74,7 @@ export class HooksLibrary {
         hookManager.addHook(this.supertestHook);
         hookManager.addHook(this.metricsHook);
         hookManager.addHook(this.mongoContainerHook);
+        hookManager.addHook(this.timerHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -88,6 +96,8 @@ export class HooksLibrary {
             useHttp: this.httpClientHook.use.bind(this.httpClientHook),
             useAppContext: this.appContextHook.use.bind(this.appContextHook),
             useMock: this.mockHook.use.bind(this.mockHook),
+            useSpy: this.spyHook.use.bind(this.spyHook),
+            useTimer: this.timerHook.use.bind(this.timerHook),
             useService: this.serviceHook.use.bind(this.serviceHook),
             useRepository: this.repositoryHook.use.bind(this.repositoryHook),
             useSupertest: this.supertestHook.use.bind(this.supertestHook),

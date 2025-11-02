@@ -58,16 +58,60 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
     }
 
     async runAfterAll(): Promise<void> {
-        // Stop the application
         const logger = useLogger();
         logger.info("Starting runAfterAll tests lifecycle...");
         await this.bootAppView.server.close();
-        ApplicationContext.getIocContainer()?.reset();
 
+        // Attempt to gracefully close persistence DataSource if present
+        try {
+            const dataSource: any = ApplicationContext.getIocContainer()?.get?.(require("typeorm").DataSource);
+            if (dataSource?.isInitialized) {
+                logger.debug("Closing TypeORM DataSource...");
+                await dataSource.destroy();
+                logger.debug("TypeORM DataSource closed.");
+            }
+        } catch (err) {
+            logger.debug("DataSource cleanup skipped (typeorm not available): " + (err as Error).message);
+        }
+
+        // Run after-tests hooks (e.g. container shutdown)
+        ApplicationContext.getIocContainer()?.reset();
         await this.hookManager.runAfterTests();
         logger.info("Completed runAfterAll tests lifecycle.");
 
-        setTimeout(() => process.exit(1), 500);
+        // Diagnostics: list active handles to aid in lingering resource detection
+        const handles = (process as any)._getActiveHandles?.() || [];
+        const requests = (process as any)._getActiveRequests?.() || [];
+        if (handles.length || requests.length) {
+            logger.debug(
+                "Active handles after cleanup: " +
+                    handles.map((h: any) => h?.constructor?.name || "Unknown").join(", ") +
+                    (requests.length ? "; requests: " + requests.length : ""),
+            );
+        }
+
+        // Yield event loop so microtasks finish
+        await new Promise(r => setImmediate(r));
+
+        // If still lingering handles that commonly keep process alive (e.g. timers), optionally force exit.
+        const lingering = ((process as any)._getActiveHandles?.() || []).filter(
+            (h: any) =>
+                h?.constructor?.name === "Server" ||
+                h?.constructor?.name === "Timeout" ||
+                h?.constructor?.name === "Socket",
+        );
+        if (lingering.length === 0) {
+            logger.debug("No lingering critical handles detected after cleanup.");
+            return; // allow node:test to exit naturally
+        }
+        logger.debug(
+            `Lingering handles detected (${lingering
+                .map((h: any) => h.constructor.name)
+                .join(", ")}). Forcing exit to prevent hang.`,
+        );
+        // Force a clean exit code (tests passed) instead of leaving process alive.
+        process.exitCode = process.exitCode ?? 0;
+        setImmediate(() => process.exit(process.exitCode));
     }
 
     async runBeforeEachTest(): Promise<void> {
