@@ -1,21 +1,22 @@
+import {after, afterEach, before, beforeEach} from "node:test";
 import {NodeBootApp} from "@nodeboot/core";
-import {NodeBootTestFramework} from "@nodeboot/test";
-import {JestHooksLibrary} from "./JestHooksLibrary";
-import {afterAll, afterEach, beforeAll, beforeEach} from "@jest/globals";
+import {HooksLibrary, NodeBootTestFramework} from "@nodeboot/test";
 
-export function useNodeBoot<App extends NodeBootApp, CustomLibrary extends JestHooksLibrary = JestHooksLibrary>(
+export function useNodeBoot<App extends NodeBootApp, CustomLibrary extends HooksLibrary = HooksLibrary>(
     AppClass: new (...args: any[]) => App,
     callback?: (setupHooks: ReturnType<CustomLibrary["getSetupHooks"]>) => void,
-    hooksLibrary: CustomLibrary = new JestHooksLibrary() as CustomLibrary, // Default to HooksLibrary
+    hooksLibrary: CustomLibrary = new HooksLibrary() as CustomLibrary,
 ): ReturnType<CustomLibrary["getReturnHooks"]> {
-    // Setup Node-Boot Test Framework
+    // Initialize the NodeBoot test framework
     const framework = new NodeBootTestFramework(AppClass, hooksLibrary);
 
-    beforeAll(async () => {
+    // Setup hook - simplified async handling
+    before(async () => {
         await framework.runBeforeAll(callback);
     });
 
-    afterAll(async () => {
+    // Teardown hook - simplified
+    after(async () => {
         await framework.runAfterAll();
     });
 
