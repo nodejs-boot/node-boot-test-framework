@@ -244,32 +244,7 @@ importers:
         version: 7.1.4
       typeorm:
         specifier: 0.3.27
-        version: 0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
-
-  packages/jest:
-    dependencies:
-      '@jest/globals':
-        specifier: ^29.5.0
-        version: 29.7.0
-      '@nodeboot/context':
-        specifier: ^2.0.0
-        version: 2.0.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/core':
-        specifier: ^1.15.2
-        version: 1.15.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/test':
-        specifier: workspace:^
-        version: link:../core
-      jest:
-        specifier: ^29.5.0
-        version: 29.7.0(@types/node@22.18.8)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@22.18.8)(typescript@5.9.3))
-    devDependencies:
-      '@types/jest':
-        specifier: ^29.5.11
-        version: 29.5.14
-      '@types/node':
-        specifier: ^22.13.4
-        version: 22.18.8
+        version: 0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4))
 
   packages/node-test:
     dependencies:
@@ -14769,7 +14744,7 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)):
+  typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4)):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 3.17.0
@@ -14789,7 +14764,7 @@ snapshots:
     optionalDependencies:
       better-sqlite3: 9.6.0
       mongodb: 6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7)
-      ts-node: 10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)
+      ts-node: 10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
