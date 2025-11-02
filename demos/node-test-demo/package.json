@@ -1,13 +1,14 @@
 {
-    "name": "@nodeboot/node-new",
+    "name": "@nodeboot/node-test-demo",
     "version": "1.5.0",
-    "description": "Demo project for Node-Boot tests with Jest",
+    "description": "Demo project for Node-Boot tests with node:test",
     "author": "Manuel Santos <ney.br.santos@gmail.com>",
     "license": "MIT",
     "private": "true",
     "keywords": [
         "tests",
-        "node-boot"
+        "node-boot",
+        "node:test"
     ],
     "repository": {
         "type": "git",
