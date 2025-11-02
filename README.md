@@ -19,15 +19,17 @@ A comprehensive, extensible testing framework for NodeBoot applications that pro
 ### Installation
 
 ```bash
-npm install @nodeboot/jest
+npm install @nodeboot/node-test
 # or
-pnpm add @nodeboot/jest
+pnpm add @nodeboot/node-test
 ```
 
 ### Basic Usage
 
 ```typescript
-import {useNodeBoot} from "@nodeboot/jest";
+import {describe, test} from "node:test";
+import assert from "node:assert/strict";
+import {useNodeBoot} from "@nodeboot/node-test";
 import {MyApp} from "./MyApp";
 
 describe("My App Integration Tests", () => {
@@ -46,35 +48,33 @@ describe("My App Integration Tests", () => {
 
         // Mock a service
         useMock(EmailService, {
-            sendEmail: jest.fn(() => Promise.resolve()),
+            sendEmail: () => Promise.resolve(),
         });
     });
 
-    it("should handle API requests", async () => {
+    test("should handle API requests", async () => {
         const {get} = useHttp();
 
         const response = await get("/api/users");
-        expect(response.status).toBe(200);
+        assert.equal(response.status, 200);
     });
 
-    it("should access services", () => {
+    test("should access services", () => {
         const userService = useService(UserService);
-        expect(userService).toBeDefined();
+        assert.ok(userService, "UserService should be defined");
     });
 });
 ```
 
 ### Advanced Usage
 
-For a step by step inline NodeBoot application example plus full integration tests setup in one single file, refer to the [Full NodeBoot App + Integration Tests](demos/jest-express-demo/src/notebook.test.ts).
+For comprehensive integration test examples using the NodeBoot Test Framework with Node.js test runner, refer to the [Node.js Test Demo](demos/node-test-demo) project.
 
 > Feel free to explore it, run it, and modify it to get a hands-on understanding of how to leverage the NodeBoot Test Framework effectively.
 
 You can also check the demo projects:
 
--   [Express Demo](demos/jest-express-demo) - A simple Express app with integration tests using Jest.
--   [Fastify Demo](demos/jest-fastify-demo) - A Fastify app with integration tests using Jest.
--   [Koa Demo](demos/jest-koa-demo) - A Koa app with integration tests using Jest.
+-   [Node.js Test Demo](demos/node-test-demo) - Integration tests using Node.js built-in test runner.
 
 ## Architecture Overview
 
@@ -83,10 +83,10 @@ The NodeBoot Test Framework follows a layered, plugin-based architecture designe
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                Test Runner Integration                  │
-│            (Jest, Mocha, Vitest, etc.)                  │
+│            (node:test, Mocha, Vitest, etc.)             │
 ├─────────────────────────────────────────────────────────┤
 │              Custom Hook Libraries                      │
-│       (JestHooksLibrary, MochaHooksLibrary, etc.)       │
+│             (MochaHooksLibrary, etc.)                   │
 ├─────────────────────────────────────────────────────────┤
 │                 Core Framework                          │
 │    (NodeBootTestFramework, HookManager, HooksLibrary)   │
@@ -141,7 +141,7 @@ Setup hooks are **called during test configuration** and are used to prepare you
 const hooks = useNodeBoot(MyApp, ({useConfig, useMock, useEnv}) => {
     // These are Setup Hooks - they configure the test environment
     useConfig({database: {url: "sqlite::memory:"}});
-    useMock(EmailService, {sendEmail: jest.fn()});
+    useMock(EmailService, {sendEmail: () => Promise.resolve()});
     useEnv({NODE_ENV: "test"});
 });
 ```
@@ -187,7 +187,7 @@ it("should work with services", () => {
 -   `useHttp()` - HTTP client for API testing
 -   `useSupertest()` - Supertest instance for HTTP testing
 -   `useConfig()` - Access current configuration (read-only)
--   `useSpy()` - Create Jest spies on services
+-   `useSpy()` - Create spies on service methods
 
 ### Execution Timeline
 
@@ -285,13 +285,13 @@ useEnv({
 Mock service methods with automatic cleanup.
 
 ```typescript
-// Mock with Jest functions
+// Mock with plain function implementations
 useMock(EmailService, {
-    sendEmail: jest.fn(() => Promise.resolve()),
-    validateEmail: jest.fn(() => true),
+    sendEmail: () => Promise.resolve(),
+    validateEmail: () => true,
 });
 
-// Mock with plain implementations
+// Mock with more complex implementations
 useMock(PaymentService, {
     processPayment: () => ({success: true, transactionId: "test-123"}),
 });
@@ -454,6 +454,9 @@ it("should access app context", () => {
 ### 1. Test Organization
 
 ```typescript
+import {describe, test} from "node:test";
+import {useNodeBoot} from "@nodeboot/node-test";
+
 describe("User Management", () => {
     const hooks = useNodeBoot(AppUnderTest, commonSetup);
 
@@ -471,8 +474,8 @@ describe("User Management", () => {
 
 ```typescript
 // Mock external dependencies, keep internal services real
-useMock(EmailService, {sendEmail: jest.fn()}); // External
-useMock(PaymentGateway, {charge: jest.fn()}); // External
+useMock(EmailService, {sendEmail: () => Promise.resolve()}); // External
+useMock(PaymentGateway, {charge: () => Promise.resolve()}); // External
 // Don't mock UserService, OrderService, etc. (internal business logic)
 ```
 
@@ -502,27 +505,29 @@ const {useRepository} = useNodeBoot(AppUnderTest);
 
 // Clean slate for each test
 beforeEach(async () => {
-    const db = useRepository(DatabaseRepository);
-    await db.truncateAll();
-    await db.seedTestData();
+    const repository = useRepository(UserRepository);
+    await repository.find({});
 });
 ```
 
 ### 5. Async Testing
 
-```typescript
-const {useService} = useNodeBoot(AppUnderTest);
+### 5. Async Testing
 
-it("should handle async operations", async () => {
+```typescript
+import {test} from "node:test";
+import assert from "node:assert/strict";
+
+test("should handle async operations", async () => {
     const service = useService(AsyncService);
 
     // Use proper async/await
     const result = await service.processAsync("data");
-    expect(result).toBeDefined();
+    assert.ok(result, "Result should be defined");
 
     // Verify async side effects
     const spy = useSpy(EmailService, "sendEmail");
-    expect(spy).toHaveBeenCalled();
+    assert.equal(spy.callCount, 1, "sendEmail should have been called");
 });
 ```
 
@@ -577,7 +582,8 @@ it("should handle async operations", async () => {
 3. **Verify Mock Calls**
     ```typescript
     const spy = useSpy(Service, "method");
-    console.log("Mock calls:", spy.mock.calls);
+    console.log("Mock calls:", spy.calls);
+    console.log("Call count:", spy.callCount);
     ```
 
 ## Migration Guide
@@ -603,35 +609,35 @@ const {useHttp} = useNodeBoot(MyApp);
 
 ### Core Package Setup Hooks
 
-| Hook Name       | Hook Signature                                                           | Scope | Description                                         | Example Usage                                                |
-| --------------- | ------------------------------------------------------------------------ | ----- | --------------------------------------------------- | ------------------------------------------------------------ |
-| `useConfig`     | `(config: JsonObject) => void`                                           | Setup | Override application configuration for tests        | `useConfig({app: {port: 3001}, database: {url: "test.db"}})` |
-| `useEnv`        | `(vars: Record<string, string>) => void`                                 | Setup | Set environment variables for the test session      | `useEnv({NODE_ENV: "test", API_KEY: "test-key"})`            |
-| `useMock`       | `<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) => void` | Setup | Mock service methods with automatic cleanup         | `useMock(EmailService, {sendEmail: jest.fn()})`              |
-| `useAddress`    | `(callback: (address: string) => void) => void`                          | Setup | Access the server's listening address after startup | `useAddress(addr => console.log("Server at:", addr))`        |
-| `useAppContext` | `(callback: (context: NodeBootAppView) => void) => void`                 | Setup | Access the application context for advanced setup   | `useAppContext(ctx => expect(ctx.config).toBeDefined())`     |
-| `usePactum`     | `(baseUrl?: string) => void`                                             | Setup | Enable Pactum.js integration for HTTP testing       | `usePactum()` or `usePactum("http://localhost:3001")`        |
-| `useCleanup`    | `(options: {afterAll?: () => void, afterEach?: () => void}) => void`     | Setup | Register cleanup functions for automatic execution  | `useCleanup({afterAll: () => cleanupDatabase()})`            |
+| Hook Name       | Hook Signature                                                           | Scope | Description                                         | Example Usage                                                 |
+| --------------- | ------------------------------------------------------------------------ | ----- | --------------------------------------------------- | ------------------------------------------------------------- |
+| `useConfig`     | `(config: JsonObject) => void`                                           | Setup | Override application configuration for tests        | `useConfig({app: {port: 3001}, database: {url: "test.db"}})`  |
+| `useEnv`        | `(vars: Record<string, string>) => void`                                 | Setup | Set environment variables for the test session      | `useEnv({NODE_ENV: "test", API_KEY: "test-key"})`             |
+| `useMock`       | `<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) => void` | Setup | Mock service methods with automatic cleanup         | `useMock(EmailService, {sendEmail: () => Promise.resolve()})` |
+| `useAddress`    | `(callback: (address: string) => void) => void`                          | Setup | Access the server's listening address after startup | `useAddress(addr => console.log("Server at:", addr))`         |
+| `useAppContext` | `(callback: (context: NodeBootAppView) => void) => void`                 | Setup | Access the application context for advanced setup   | `useAppContext(ctx => expect(ctx.config).toBeDefined())`      |
+| `usePactum`     | `(baseUrl?: string) => void`                                             | Setup | Enable Pactum.js integration for HTTP testing       | `usePactum()` or `usePactum("http://localhost:3001")`         |
+| `useCleanup`    | `(options: {afterAll?: () => void, afterEach?: () => void}) => void`     | Setup | Register cleanup functions for automatic execution  | `useCleanup({afterAll: () => cleanupDatabase()})`             |
 
 ### Core Package Return Hooks
 
-| Hook Name       | Hook Signature                                                                                                                                    | Scope       | Description                                             | Example Usage                                                                   |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `useConfig`     | `() => Config`                                                                                                                                    | Test/Return | Access the current configuration (read-only)            | `const config = useConfig(); const port = config.getNumber("app.port");`        |
-| `useHttp`       | `(baseURL?: string) => AxiosInstance`                                                                                                             | Test/Return | Get HTTP client for API testing                         | `const {get, post} = useHttp(); await get("/api/users");`                       |
-| `useService`    | `<T>(serviceClass: new (...args: any[]) => T) => T`                                                                                               | Test/Return | Get service instances from the IoC container            | `const userService = useService(UserService);`                                  |
-| `useRepository` | `<T>(repositoryClass: new (...args: any[]) => T) => T`                                                                                            | Test/Return | Get repository instances for data layer testing         | `const userRepo = useRepository(UserRepository);`                               |
-| `useSupertest`  | `() => TestAgent`                                                                                                                                 | Test/Return | Get Supertest instance for HTTP testing with assertions | `const request = useSupertest(); await request.get("/api/users").expect(200);`  |
-| `useAppContext` | `(callback: (context: NodeBootAppView) => void) => void`                                                                                          | Test/Return | Access the application context during test execution    | `useAppContext(ctx => expect(ctx.logger).toBeDefined())`                        |
-| `useMock`       | `<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) => {restore: () => void}`                                                         | Test/Return | Mock service methods with manual restore capability     | `const {restore} = useMock(EmailService, {sendEmail: jest.fn()});`              |
-| `useMetrics`    | `() => {recordMetric: (name: string, value: any) => void, startTimer: (name: string) => {end: () => number}, getMetrics: (name?: string) => any}` | Test/Return | Collect and retrieve test metrics and performance data  | `const {recordMetric, startTimer} = useMetrics(); recordMetric("apiCalls", 5);` |
+| Hook Name       | Hook Signature                                                                                                                                    | Scope       | Description                                             | Example Usage                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `useConfig`     | `() => Config`                                                                                                                                    | Test/Return | Access the current configuration (read-only)            | `const config = useConfig(); const port = config.getNumber("app.port");`         |
+| `useHttp`       | `(baseURL?: string) => AxiosInstance`                                                                                                             | Test/Return | Get HTTP client for API testing                         | `const {get, post} = useHttp(); await get("/api/users");`                        |
+| `useService`    | `<T>(serviceClass: new (...args: any[]) => T) => T`                                                                                               | Test/Return | Get service instances from the IoC container            | `const userService = useService(UserService);`                                   |
+| `useRepository` | `<T>(repositoryClass: new (...args: any[]) => T) => T`                                                                                            | Test/Return | Get repository instances for data layer testing         | `const userRepo = useRepository(UserRepository);`                                |
+| `useSupertest`  | `() => TestAgent`                                                                                                                                 | Test/Return | Get Supertest instance for HTTP testing with assertions | `const request = useSupertest(); await request.get("/api/users").expect(200);`   |
+| `useAppContext` | `(callback: (context: NodeBootAppView) => void) => void`                                                                                          | Test/Return | Access the application context during test execution    | `useAppContext(ctx => expect(ctx.logger).toBeDefined())`                         |
+| `useMock`       | `<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) => {restore: () => void}`                                                         | Test/Return | Mock service methods with manual restore capability     | `const {restore} = useMock(EmailService, {sendEmail: () => Promise.resolve()});` |
+| `useMetrics`    | `() => {recordMetric: (name: string, value: any) => void, startTimer: (name: string) => {end: () => number}, getMetrics: (name?: string) => any}` | Test/Return | Collect and retrieve test metrics and performance data  | `const {recordMetric, startTimer} = useMetrics(); recordMetric("apiCalls", 5);`  |
 
-### Jest Package Return Hooks
+### Node Test Package Return Hooks
 
-| Hook Name  | Hook Signature                                                                                | Scope       | Description                                       | Example Usage                                                                    |
-| ---------- | --------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `useSpy`   | `<T>(serviceClass: new (...args: any[]) => T, methodName: keyof T & string) => SpiedFunction` | Test/Return | Create Jest spies on service methods              | `const spy = useSpy(EmailService, "sendEmail"); expect(spy).toHaveBeenCalled();` |
-| `useTimer` | `() => {control: () => TimeControl, tracking: () => TimeTracking}`                            | Test/Return | Control Jest fake timers and track execution time | `const {control, tracking} = useTimer(); control().advanceTimeBy(1000);`         |
+| Hook Name  | Hook Signature                                                                                | Scope       | Description                                  | Example Usage                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------- | ----------- | -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `useSpy`   | `<T>(serviceClass: new (...args: any[]) => T, methodName: keyof T & string) => SpiedFunction` | Test/Return | Create spies on service methods              | `const spy = useSpy(EmailService, "sendEmail"); assert.equal(spy.callCount, 1);` |
+| `useTimer` | `() => {control: () => TimeControl, tracking: () => TimeTracking}`                            | Test/Return | Control fake timers and track execution time | `const {control, tracking} = useTimer(); control().advanceTimeBy(1000);`         |
 
 ### Hook Scope Legend
 
@@ -644,24 +650,24 @@ const {useHttp} = useNodeBoot(MyApp);
 // Setup hooks are used in the configuration callback
 const hooks = useNodeBoot(MyApp, ({useConfig, useMock, useEnv}) => {
     useConfig({database: {url: "test.db"}}); // Setup Hook
-    useMock(EmailService, {sendEmail: jest.fn()}); // Setup Hook
+    useMock(EmailService, {sendEmail: () => Promise.resolve()}); // Setup Hook
     useEnv({NODE_ENV: "test"}); // Setup Hook
 });
 
-// Return hooks are used during test execution
+// Return/Test hooks are used during test execution
 const {useService, useHttp, useSpy} = hooks;
 
-it("should work", () => {
+test("should work", () => {
     const service = useService(UserService); // Return Hook
     const {get} = useHttp(); // Return Hook
-    const spy = useSpy(EmailService, "sendEmail"); // Return Hook (Jest only)
+    const spy = useSpy(EmailService, "sendEmail"); // Return Hook
 });
 ```
 
 ## Extending the Framework
 
 -   To implement custom hooks or extend the framework, refer to the [Creating Custom Hooks](packages/core/README.md#advanced-usage) documentation.
--   Fora concrete example of extension, refer to the [Jest Hooks Library](packages/jest/README.md) documentation.
+-   For a concrete example of extension, refer to the [node:test extension](packages/node-test/README.md) documentation.
 
 ## License
 
