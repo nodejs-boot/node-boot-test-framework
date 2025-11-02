@@ -4,7 +4,6 @@ import {
     Body,
     ClassToPlainTransform,
     Controller,
-    Controllers,
     Delete,
     EnableClassTransformer,
     Get,
@@ -18,26 +17,27 @@ import {
     Service,
 } from "@nodeboot/core";
 import {EnableDI} from "@nodeboot/di";
-import {Logger} from "winston";
 import {JsonObject} from "@nodeboot/context";
-import {Column, Entity, ObjectIdColumn, Repository} from "typeorm";
 import {DataRepository, EnableRepositories} from "@nodeboot/starter-persistence";
-import {IsEmail, IsNotEmpty, IsString, MaxLength, MinLength} from "class-validator";
-import {HttpError} from "@nodeboot/error";
 import {ExpressServer} from "@nodeboot/express-server";
+import {EnableComponentScan} from "@nodeboot/aot";
+import {Column, Entity, ObjectIdColumn, Repository} from "typeorm";
+import {IsEmail, IsNotEmpty, IsString, MaxLength, MinLength} from "class-validator";
+import {Logger} from "winston";
+import {HttpError} from "@nodeboot/error";
 
 @Entity()
 export class UserEntity {
     @ObjectIdColumn()
     id: string;
 
-    @Column()
+    @Column("string")
     email: string;
 
-    @Column()
+    @Column("string")
     password: string;
 
-    @Column({nullable: true})
+    @Column("string", {nullable: true})
     name?: string; // New field
 }
 
@@ -97,7 +97,7 @@ export class UserService {
 }
 
 @Controller("/users")
-class UserController {
+export class UserController {
     constructor(private readonly userService: UserService) {}
 
     @Get("/:id")
@@ -107,8 +107,7 @@ class UserController {
 
     @Get("/")
     async getUsers(): Promise<UserEntity[]> {
-        const result = await this.userService.findAllUser();
-        return result;
+        return await this.userService.findAllUser();
     }
 
     @Post("/")
@@ -133,8 +132,8 @@ class UserController {
 export class ClassTransformConfiguration {}
 
 @EnableDI(Container)
+@EnableComponentScan()
 @NodeBootApplication()
-@Controllers([UserController])
 @EnableRepositories()
 export class TestAppWithMongoPersistence implements NodeBootApp {
     start(additionalConfig?: JsonObject): Promise<NodeBootAppView> {
