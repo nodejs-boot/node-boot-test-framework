@@ -41,7 +41,6 @@
         "test": "turbo run --parallel test",
         "typecheck": "turbo run --parallel typecheck",
         "typecheck:full": "tsc --skipLibCheck false --incremental false",
-        "memoryleak:detect": "timeout 30s node memory-leak-detector.js",
         "prepare": "husky install",
         "postinstall": "husky install",
         "prepack": "pinst --disable",
