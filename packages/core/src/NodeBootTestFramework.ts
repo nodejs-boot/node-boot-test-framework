@@ -60,6 +60,9 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
     async runAfterAll(): Promise<void> {
         const logger = useLogger();
         logger.info("Starting runAfterAll tests lifecycle...");
+
+        await this.hookManager.runAfterTests();
+
         await this.bootAppView.server.close();
 
         // Attempt to gracefully close persistence DataSource if present
@@ -76,7 +79,7 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
 
         // Run after-tests hooks (e.g. container shutdown)
         ApplicationContext.getIocContainer()?.reset();
-        await this.hookManager.runAfterTests();
+
         logger.info("Completed runAfterAll tests lifecycle.");
 
         // Diagnostics: list active handles to aid in lingering resource detection

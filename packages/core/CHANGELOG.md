@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 2.1.0
+
+### Minor Changes
+
+-   Properly handle test env teardown
+
 ## 2.0.0
 
 ### Major Changes
