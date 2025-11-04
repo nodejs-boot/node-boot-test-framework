@@ -1,5 +1,21 @@
 # @nodeboot/node-test
 
+## 2.1.4
+
+### Patch Changes
+
+-   handle teardown hooks in reversed priority
+-   Updated dependencies
+    -   @nodeboot/test@2.1.4
+
+## 2.1.3
+
+### Patch Changes
+
+-   Test changeset with both packages explicitly mentioned to verify linked behavior
+-   Updated dependencies
+    -   @nodeboot/test@2.1.3
+
 ## 1.0.0
 
 ### Major Changes

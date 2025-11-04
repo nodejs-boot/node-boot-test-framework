@@ -42,9 +42,13 @@ export class HookManager {
     }
 
     async runAfterTests() {
-        useLogger().debug("Running afterTests phase for all hooks.");
-        for (const hook of this.hooks) {
-            await hook.afterTests();
+        useLogger().debug("Running afterTests phase for all hooks (in reverse priority order).");
+        // Run hooks in reverse order for cleanup to handle dependencies properly
+        for (let i = this.hooks.length - 1; i >= 0; i--) {
+            const hook = this.hooks[i];
+            if (hook) {
+                await hook.afterTests();
+            }
         }
         useLogger().debug("Completed afterTests phase.");
     }
@@ -58,9 +62,13 @@ export class HookManager {
     }
 
     async runAfterEachTest() {
-        useLogger().debug("Running afterEachTest phase for all hooks.");
-        for (const hook of this.hooks) {
-            await hook.afterEachTest();
+        useLogger().debug("Running afterEachTest phase for all hooks (in reverse priority order).");
+        // Run hooks in reverse order for cleanup to handle dependencies properly
+        for (let i = this.hooks.length - 1; i >= 0; i--) {
+            const hook = this.hooks[i];
+            if (hook) {
+                await hook.afterEachTest();
+            }
         }
         useLogger().debug("Completed afterEachTest phase.");
     }
