@@ -2,6 +2,7 @@ import {Hook} from "./Hook";
 import {JsonObject} from "@nodeboot/context";
 import {useLogger} from "../utils/useLogger";
 import {GenericContainer, StartedTestContainer} from "testcontainers";
+import {configureContainerRuntime, detectContainerRuntime} from "../utils/container-runtime";
 
 type MongoContainerOptions = {
     image?: string; // Default: mongo:6
@@ -10,13 +11,15 @@ type MongoContainerOptions = {
     username?: string;
     password?: string;
     env?: Record<string, string>;
+    containerLogging?: boolean;
 };
 
 export const MONGODB_URI = "MONGODB_URI";
 
 /**
  * Spins up a real MongoDB container using Testcontainers.
- * Integrates cleanly with NodeBoot’s persistence layer.
+ * Integrates cleanly with NodeBoot's persistence layer.
+ * Automatically detects and configures the appropriate container runtime.
  */
 export class MongoContainerHook extends Hook {
     private container?: StartedTestContainer;
@@ -42,29 +45,37 @@ export class MongoContainerHook extends Hook {
 
         logger.info(`[MongoContainerHook] Starting MongoDB container (${image})...`);
 
-        const home = process.env["HOME"];
-        process.env["TESTCONTAINERS_RYUK_DISABLED"] = "true";
-        process.env["DOCKER_HOST"] = `unix://${home}/.colima/default/docker.sock`; //"unix://${HOME}/.colima/default/docker.sock";
-        process.env["TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE"] = `unix://${home}/.colima/default/docker.sock`;
+        // Detect and configure container runtime
+        const {runtime, config: runtimeConfig} = detectContainerRuntime();
+        configureContainerRuntime(runtimeConfig);
+        logger.info(`[MongoContainerHook] Using container runtime: ${runtime}`);
 
-        const container = await new GenericContainer(image)
-            .withExposedPorts(port)
-            .withEnvironment({
-                MONGO_INITDB_DATABASE: dbName,
-                ...(opts.username ? {MONGO_INITDB_ROOT_USERNAME: opts.username} : {}),
-                ...(opts.password ? {MONGO_INITDB_ROOT_PASSWORD: opts.password} : {}),
-                ...(opts.env ?? {}),
-            })
-            .start();
+        const container = new GenericContainer(image).withExposedPorts(port).withEnvironment({
+            MONGO_INITDB_DATABASE: dbName,
+            ...(opts.username ? {MONGO_INITDB_ROOT_USERNAME: opts.username} : {}),
+            ...(opts.password ? {MONGO_INITDB_ROOT_PASSWORD: opts.password} : {}),
+            ...(opts.env ?? {}),
+        });
 
-        const mappedPort = container.getMappedPort(port);
-        const host = container.getHost();
+        if (opts.containerLogging) {
+            container.withLogConsumer(stream => {
+                stream.on("data", line => logger.debug(`[MongoContainerHook] ${line}`));
+                stream.on("err", line => logger.error(`[MongoContainerHook] ${line}`));
+                stream.on("end", () => logger.debug("Stream closed"));
+            });
+        }
+
+        // start the container
+        const runningContainer = await container.start();
+
+        const mappedPort = runningContainer.getMappedPort(port);
+        const host = runningContainer.getHost();
 
         const uri = opts.username
             ? `mongodb://${opts.username}:${opts.password}@${host}:${mappedPort}/${dbName}?authSource=admin`
             : `mongodb://${host}:${mappedPort}/${dbName}`;
 
-        this.container = container;
+        this.container = runningContainer;
         this.uri = uri;
         process.env[MONGODB_URI] = uri;
 

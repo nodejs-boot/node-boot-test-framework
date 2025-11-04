@@ -29,8 +29,8 @@
         "typecheck": "tsc"
     },
     "dependencies": {
-        "@nodeboot/context": "^2.0.0",
-        "@nodeboot/core": "^1.15.2",
+        "@nodeboot/context": "^2.1.0",
+        "@nodeboot/core": "^1.15.3",
         "@nodeboot/test": "workspace:^",
         "@sinonjs/fake-timers": "^11.3.1"
     },

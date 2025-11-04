@@ -5,6 +5,8 @@ import {
     CleanupHook,
     ConfigHook,
     EnvHook,
+    GenericContainerHook,
+    GenericContainerRawHook,
     HttpClientHook,
     MetricsHook,
     MockHook,
@@ -26,6 +28,8 @@ export type SetUpHooks = {
     useCleanup: CleanupHook["call"];
     usePactum: PactumHook["call"];
     useMongoContainer: MongoContainerHook["call"];
+    useGenericContainerRaw: GenericContainerRawHook["call"];
+    useGenericContainer: GenericContainerHook["call"];
 };
 
 export type ReturnHooks = {
@@ -39,7 +43,9 @@ export type ReturnHooks = {
     useRepository: RepositoryHook["use"];
     useSupertest: SupertestHook["use"];
     useMetrics: MetricsHook["use"];
+    useGenericContainerRaw: GenericContainerRawHook["use"];
     useMongoContainer: MongoContainerHook["use"];
+    useGenericContainer: GenericContainerHook["use"];
 };
 
 export class HooksLibrary {
@@ -55,8 +61,10 @@ export class HooksLibrary {
     serviceHook = new ServiceHook();
     repositoryHook = new RepositoryHook();
     supertestHook = new SupertestHook();
+    genericContainerRawHook = new GenericContainerRawHook();
     metricsHook = new MetricsHook();
     mongoContainerHook = new MongoContainerHook();
+    genericContainerHook = new GenericContainerHook();
     timerHook = new TimerHook();
 
     registerHooks(hookManager: HookManager) {
@@ -71,9 +79,11 @@ export class HooksLibrary {
         hookManager.addHook(this.httpClientHook);
         hookManager.addHook(this.serviceHook);
         hookManager.addHook(this.repositoryHook);
+        hookManager.addHook(this.genericContainerRawHook);
         hookManager.addHook(this.supertestHook);
         hookManager.addHook(this.metricsHook);
         hookManager.addHook(this.mongoContainerHook);
+        hookManager.addHook(this.genericContainerHook);
         hookManager.addHook(this.timerHook);
     }
 
@@ -83,10 +93,12 @@ export class HooksLibrary {
             useMock: this.mockHook.call.bind(this.mockHook),
             useConfig: this.configHook.call.bind(this.configHook),
             useEnv: this.envHook.call.bind(this.envHook),
+            useGenericContainerRaw: this.genericContainerRawHook.call.bind(this.genericContainerRawHook),
             useAddress: this.addressHook.call.bind(this.addressHook),
             useCleanup: this.cleanupHook.call.bind(this.cleanupHook),
             usePactum: this.pactumHook.call.bind(this.pactumHook),
             useMongoContainer: this.mongoContainerHook.call.bind(this.mongoContainerHook),
+            useGenericContainer: this.genericContainerHook.call.bind(this.genericContainerHook),
         };
     }
 
@@ -103,6 +115,8 @@ export class HooksLibrary {
             useSupertest: this.supertestHook.use.bind(this.supertestHook),
             useMetrics: this.metricsHook.use.bind(this.metricsHook),
             useMongoContainer: this.mongoContainerHook.use.bind(this.mongoContainerHook),
+            useGenericContainer: this.genericContainerHook.use.bind(this.genericContainerHook),
+            useGenericContainerRaw: this.genericContainerRawHook.use.bind(this.genericContainerRawHook),
         };
     }
 }
