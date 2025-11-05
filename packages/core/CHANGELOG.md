@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 2.2.0
+
+### Minor Changes
+
+-   Fix teardown
+
 ## 2.1.4
 
 ### Patch Changes

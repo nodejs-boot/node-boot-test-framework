@@ -1,5 +1,16 @@
 # @nodeboot/node-test
 
+## 2.2.0
+
+### Minor Changes
+
+-   Fix teardown
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.2.0
+
 ## 2.1.4
 
 ### Patch Changes
