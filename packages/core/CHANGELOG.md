@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 2.3.0
+
+### Minor Changes
+
+-   Add several test hooks. Implement solution for unhandled rejections and uncaught exceptions
+
 ## 2.2.0
 
 ### Minor Changes
