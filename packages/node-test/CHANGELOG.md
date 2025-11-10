@@ -1,5 +1,16 @@
 # @nodeboot/node-test
 
+## 2.4.0
+
+### Minor Changes
+
+-   Add lifecycleHook and refactor timer hook
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.4.0
+
 ## 2.3.0
 
 ### Minor Changes
