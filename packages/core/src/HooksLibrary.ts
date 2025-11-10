@@ -2,27 +2,27 @@ import {HookManager} from "./HookManager";
 import {
     AddressHook,
     AppContextHook,
-    CleanupHook,
     ConfigHook,
     EnvHook,
+    FileSystemSandboxHook,
     GenericContainerHook,
     GenericContainerRawHook,
     HttpClientHook,
+    LifecycleHook,
+    LogCaptureHook,
+    LogMatchHook,
     MetricsHook,
     MockHook,
     MongoContainerHook,
     PactumHook,
-    RepositoryHook,
-    ServiceHook,
-    SpyHook,
-    TimerHook,
-    LogCaptureHook,
-    LogMatchHook,
-    FileSystemSandboxHook,
-    ResourceLeakDetectorHook,
     PerformanceBudgetHook,
+    RepositoryHook,
+    ResourceLeakDetectorHook,
+    ServiceHook,
     SnapshotStateHook,
+    SpyHook,
     SupertestHook,
+    TimerHook,
 } from "./hooks";
 
 export type SetUpHooks = {
@@ -31,7 +31,8 @@ export type SetUpHooks = {
     useConfig: ConfigHook["call"];
     useAddress: AddressHook["call"];
     useEnv: EnvHook["call"];
-    useCleanup: CleanupHook["call"];
+    useTimer: TimerHook["call"];
+    useLifecycle: LifecycleHook["call"];
     usePactum: PactumHook["call"];
     useMongoContainer: MongoContainerHook["call"];
     useGenericContainerRaw: GenericContainerRawHook["call"];
@@ -73,7 +74,7 @@ export class HooksLibrary {
     configHook = new ConfigHook();
     envHook = new EnvHook();
     addressHook = new AddressHook();
-    cleanupHook = new CleanupHook();
+    lifecycleHook = new LifecycleHook();
     pactumHook = new PactumHook();
     httpClientHook = new HttpClientHook();
     serviceHook = new ServiceHook();
@@ -98,7 +99,7 @@ export class HooksLibrary {
         hookManager.addHook(this.configHook);
         hookManager.addHook(this.envHook);
         hookManager.addHook(this.addressHook);
-        hookManager.addHook(this.cleanupHook);
+        hookManager.addHook(this.lifecycleHook);
         hookManager.addHook(this.pactumHook);
         hookManager.addHook(this.httpClientHook);
         hookManager.addHook(this.serviceHook);
@@ -123,9 +124,10 @@ export class HooksLibrary {
             useMock: this.mockHook.call.bind(this.mockHook),
             useConfig: this.configHook.call.bind(this.configHook),
             useEnv: this.envHook.call.bind(this.envHook),
+            useTimer: this.timerHook.call.bind(this.timerHook),
             useGenericContainerRaw: this.genericContainerRawHook.call.bind(this.genericContainerRawHook),
             useAddress: this.addressHook.call.bind(this.addressHook),
-            useCleanup: this.cleanupHook.call.bind(this.cleanupHook),
+            useLifecycle: this.lifecycleHook.call.bind(this.lifecycleHook),
             usePactum: this.pactumHook.call.bind(this.pactumHook),
             useMongoContainer: this.mongoContainerHook.call.bind(this.mongoContainerHook),
             useGenericContainer: this.genericContainerHook.call.bind(this.genericContainerHook),

@@ -1,7 +1,6 @@
 export {Hook} from "./Hook";
 export {AddressHook} from "./AddressHook";
 export {AppContextHook} from "./AppContextHook";
-export {CleanupHook} from "./CleanupHook";
 export {ConfigHook} from "./ConfigHook";
 export {EnvHook} from "./EnvHook";
 export {HttpClientHook} from "./HttpClientHook";
@@ -15,7 +14,7 @@ export {MongoContainerHook} from "./MongoContainerHook";
 export {GenericContainerHook} from "./GenericContainerHook";
 export {GenericContainerRawHook} from "./GenericContainerRawHook";
 export {TimerHook} from "./TimerHook";
-export {SetupHook} from "./SetupHook";
+export {LifecycleHook} from "./LifecycleHook";
 export {LogCaptureHook} from "./LogCaptureHook";
 export {LogMatchHook} from "./LogMatchHook";
 export {FileSystemSandboxHook} from "./FileSystemSandboxHook";
