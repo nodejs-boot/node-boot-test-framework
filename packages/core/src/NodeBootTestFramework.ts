@@ -9,6 +9,12 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
     private bootAppView!: NodeBootAppView;
     private hookManager: HookManager;
     private hooksLibrary: CustomLibrary;
+    // Added lifecycle flags
+    private hasRunBeforeAll = false;
+    private hasRunAfterAll = false;
+    private inTest = false;
+    private emergencyShutdownInitiated = false;
+    private cleanupLog: string[] = [];
 
     constructor(private AppClass: new (...args: any[]) => App, hooksLibrary: CustomLibrary) {
         this.hookManager = new HookManager();
@@ -22,6 +28,7 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
         setupCallback?: (setupHooks: ReturnType<CustomLibrary["getSetupHooks"]>) => void,
     ): Promise<void> {
         const logger = useLogger();
+        this.hasRunBeforeAll = true;
         // Allow user-defined setup via callback
         setupCallback?.(this.hooksLibrary.getSetupHooks() as any);
 
@@ -59,23 +66,29 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
 
     async runAfterAll(): Promise<void> {
         const logger = useLogger();
+        if (this.hasRunAfterAll) return; // idempotent
+        this.hasRunAfterAll = true;
         logger.info("Starting runAfterAll tests lifecycle...");
 
         try {
             await this.hookManager.runAfterTests();
+            this.cleanupLog.push("hooks.afterTests");
 
-            await this.bootAppView.server.close();
+            if (this.bootAppView?.server) {
+                await this.bootAppView.server.close();
+                this.cleanupLog.push("server.close");
+            }
 
-            // Run after-tests hooks (e.g. container shutdown)
             ApplicationContext.getIocContainer()?.reset();
+            this.cleanupLog.push("ioc.reset");
 
-            // Attempt to gracefully close persistence DataSource if present
             try {
                 const dataSource: any = ApplicationContext.getIocContainer()?.get?.(require("typeorm").DataSource);
                 if (dataSource?.isInitialized) {
                     logger.debug("Closing TypeORM DataSource...");
                     await dataSource.destroy();
                     logger.debug("TypeORM DataSource closed.");
+                    this.cleanupLog.push("typeorm.destroy");
                 }
             } catch (err) {
                 logger.debug("DataSource cleanup skipped (typeorm not available): " + (err as Error).message);
@@ -119,10 +132,12 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
             // Force a clean exit code (tests passed) instead of leaving process alive.
             process.exitCode = process.exitCode ?? 0;
             setImmediate(() => process.exit(process.exitCode));
+            logger.debug("Cleanup summary: " + this.cleanupLog.join(", "));
         }
     }
 
     async runBeforeEachTest(): Promise<void> {
+        this.inTest = true;
         // Run all `beforeEach` hooks
         await this.hookManager.runBeforeEachTest();
     }
@@ -130,6 +145,58 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
     async runAfterEachTest(): Promise<void> {
         // Run all `afterEach` hooks
         await this.hookManager.runAfterEachTest();
+        this.inTest = false;
+    }
+
+    async emergencyCleanup(error?: any): Promise<void> {
+        if (this.emergencyShutdownInitiated) return;
+        this.emergencyShutdownInitiated = true;
+        const logger = useLogger();
+        const errInfo =
+            error instanceof Error
+                ? {name: error.name, message: error.message, stack: error.stack}
+                : {value: String(error)};
+        logger.error(
+            `Emergency cleanup triggered due to unhandled error: ${
+                errInfo.message || errInfo.stack || JSON.stringify(errInfo)
+            }`,
+        );
+
+        // Metrics integration
+        const metricsApi = (this.hooksLibrary as any)?.metricsHook?.use?.();
+        metricsApi?.recordMetric?.("emergencyCleanup.events", 1);
+        metricsApi?.recordMetric?.("emergencyCleanup.error", errInfo);
+
+        const phasesRun: string[] = [];
+
+        // If in the middle of a test, run afterEachTest hooks
+        if (this.inTest) {
+            try {
+                await this.hookManager.runAfterEachTest();
+                this.cleanupLog.push("hooks.afterEachTest.emergency");
+                phasesRun.push("afterEachTest");
+            } catch (e) {
+                logger.error("Error during emergency afterEachTest cleanup: " + (e as Error).stack);
+            }
+            this.inTest = false;
+        }
+        // If beforeAll has run but afterAll has not, run afterAll hooks
+        if (this.hasRunBeforeAll && !this.hasRunAfterAll) {
+            try {
+                await this.runAfterAll();
+                phasesRun.push("afterAll");
+            } catch (e) {
+                logger.error("Error during emergency afterAll cleanup: " + (e as Error).stack);
+            }
+        }
+
+        // Structured summary of which hooks ran in emergency context
+        const summary: Record<string, string[]> = {};
+        for (const phase of phasesRun) {
+            summary[phase] = this.hookManager.getExecutedHooks(phase === "afterAll" ? "afterTests" : phase);
+        }
+        logger.error("Emergency cleanup hook execution summary: " + JSON.stringify(summary));
+        logger.debug("Emergency cleanup log entries: " + this.cleanupLog.join(", "));
     }
 
     getReturnHooks(): ReturnType<CustomLibrary["getReturnHooks"]> {

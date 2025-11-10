@@ -57,3 +57,10 @@ persistence:
     cache: false
     mongodb:
         database: "testdb"
+
+integrations:
+    http:
+        facts-lake:
+            baseURL: "http://localhost:30000/v1"
+            timeout: 10000
+            httpLogging: true

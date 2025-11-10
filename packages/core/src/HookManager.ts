@@ -6,11 +6,21 @@ import {JsonObject} from "@nodeboot/context";
 export class HookManager {
     private hooks: Hook[] = [];
     private testConfig: JsonObject = {};
+    private executed: Record<string, string[]> = {};
 
     addHook(hook: Hook) {
         this.hooks.push(hook);
         // Sort hooks by priority (ascending)
         this.hooks.sort((a, b) => a.getPriority() - b.getPriority());
+    }
+
+    private record(phase: string, hookName: string) {
+        if (!this.executed[phase]) this.executed[phase] = [];
+        this.executed[phase].push(hookName);
+    }
+
+    getExecutedHooks(phase: string): string[] {
+        return this.executed[phase] ? [...this.executed[phase]] : [];
     }
 
     async runBeforeStart() {
@@ -21,6 +31,7 @@ export class HookManager {
         useLogger().debug("Running beforeStart phase for all hooks.");
         for (const hook of this.hooks) {
             await hook.beforeStart(this.testConfig);
+            this.record("beforeStart", hook.constructor.name);
         }
         useLogger().debug("Completed beforeStart phase.");
     }
@@ -29,6 +40,7 @@ export class HookManager {
         useLogger().debug("Running afterStart phase for all hooks.");
         for (const hook of this.hooks) {
             await hook.afterStart(bootApp);
+            this.record("afterStart", hook.constructor.name);
         }
         useLogger().debug("Completed afterStart phase.");
     }
@@ -37,17 +49,18 @@ export class HookManager {
         useLogger().debug("Running beforeTests phase for all hooks.");
         for (const hook of this.hooks) {
             await hook.beforeTests();
+            this.record("beforeTests", hook.constructor.name);
         }
         useLogger().debug("Completed beforeTests phase.");
     }
 
     async runAfterTests() {
         useLogger().debug("Running afterTests phase for all hooks (in reverse priority order).");
-        // Run hooks in reverse order for cleanup to handle dependencies properly
         for (let i = this.hooks.length - 1; i >= 0; i--) {
             const hook = this.hooks[i];
             if (hook) {
                 await hook.afterTests();
+                this.record("afterTests", hook.constructor.name);
             }
         }
         useLogger().debug("Completed afterTests phase.");
@@ -57,17 +70,18 @@ export class HookManager {
         useLogger().debug("Running beforeEachTest phase for all hooks.");
         for (const hook of this.hooks) {
             await hook.beforeEachTest();
+            this.record("beforeEachTest", hook.constructor.name);
         }
         useLogger().debug("Completed beforeEachTest phase.");
     }
 
     async runAfterEachTest() {
         useLogger().debug("Running afterEachTest phase for all hooks (in reverse priority order).");
-        // Run hooks in reverse order for cleanup to handle dependencies properly
         for (let i = this.hooks.length - 1; i >= 0; i--) {
             const hook = this.hooks[i];
             if (hook) {
                 await hook.afterEachTest();
+                this.record("afterEachTest", hook.constructor.name);
             }
         }
         useLogger().debug("Completed afterEachTest phase.");

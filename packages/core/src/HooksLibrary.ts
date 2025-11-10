@@ -16,8 +16,14 @@ import {
     ServiceHook,
     SpyHook,
     TimerHook,
+    LogCaptureHook,
+    LogMatchHook,
+    FileSystemSandboxHook,
+    ResourceLeakDetectorHook,
+    PerformanceBudgetHook,
+    SnapshotStateHook,
+    SupertestHook,
 } from "./hooks";
-import {SupertestHook} from "./hooks/SupertestHook";
 
 export type SetUpHooks = {
     useAppContext: AppContextHook["call"];
@@ -30,6 +36,12 @@ export type SetUpHooks = {
     useMongoContainer: MongoContainerHook["call"];
     useGenericContainerRaw: GenericContainerRawHook["call"];
     useGenericContainer: GenericContainerHook["call"];
+    useLogCapture: LogCaptureHook["call"];
+    useLogMatch: LogMatchHook["call"];
+    useFileSystemSandbox: FileSystemSandboxHook["call"];
+    useResourceLeakDetector: ResourceLeakDetectorHook["call"];
+    usePerformanceBudget: PerformanceBudgetHook["call"];
+    useSnapshotState: SnapshotStateHook["call"];
 };
 
 export type ReturnHooks = {
@@ -46,6 +58,12 @@ export type ReturnHooks = {
     useGenericContainerRaw: GenericContainerRawHook["use"];
     useMongoContainer: MongoContainerHook["use"];
     useGenericContainer: GenericContainerHook["use"];
+    useLogCapture: LogCaptureHook["use"];
+    useLogMatch: LogMatchHook["use"];
+    useFileSystemSandbox: FileSystemSandboxHook["use"];
+    useResourceLeakDetector: ResourceLeakDetectorHook["use"];
+    usePerformanceBudget: PerformanceBudgetHook["use"];
+    useSnapshotState: SnapshotStateHook["use"];
 };
 
 export class HooksLibrary {
@@ -66,6 +84,12 @@ export class HooksLibrary {
     mongoContainerHook = new MongoContainerHook();
     genericContainerHook = new GenericContainerHook();
     timerHook = new TimerHook();
+    logCaptureHook = new LogCaptureHook();
+    logMatchHook = new LogMatchHook();
+    fileSystemSandboxHook = new FileSystemSandboxHook();
+    resourceLeakDetectorHook = new ResourceLeakDetectorHook();
+    performanceBudgetHook = new PerformanceBudgetHook();
+    snapshotStateHook = new SnapshotStateHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
@@ -85,6 +109,12 @@ export class HooksLibrary {
         hookManager.addHook(this.mongoContainerHook);
         hookManager.addHook(this.genericContainerHook);
         hookManager.addHook(this.timerHook);
+        hookManager.addHook(this.logCaptureHook);
+        hookManager.addHook(this.logMatchHook);
+        hookManager.addHook(this.fileSystemSandboxHook);
+        hookManager.addHook(this.resourceLeakDetectorHook);
+        hookManager.addHook(this.performanceBudgetHook);
+        hookManager.addHook(this.snapshotStateHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -99,6 +129,12 @@ export class HooksLibrary {
             usePactum: this.pactumHook.call.bind(this.pactumHook),
             useMongoContainer: this.mongoContainerHook.call.bind(this.mongoContainerHook),
             useGenericContainer: this.genericContainerHook.call.bind(this.genericContainerHook),
+            useLogCapture: this.logCaptureHook.call.bind(this.logCaptureHook),
+            useLogMatch: this.logMatchHook.call.bind(this.logMatchHook),
+            useFileSystemSandbox: this.fileSystemSandboxHook.call.bind(this.fileSystemSandboxHook),
+            useResourceLeakDetector: this.resourceLeakDetectorHook.call.bind(this.resourceLeakDetectorHook),
+            usePerformanceBudget: this.performanceBudgetHook.call.bind(this.performanceBudgetHook),
+            useSnapshotState: this.snapshotStateHook.call.bind(this.snapshotStateHook),
         };
     }
 
@@ -117,6 +153,12 @@ export class HooksLibrary {
             useMongoContainer: this.mongoContainerHook.use.bind(this.mongoContainerHook),
             useGenericContainer: this.genericContainerHook.use.bind(this.genericContainerHook),
             useGenericContainerRaw: this.genericContainerRawHook.use.bind(this.genericContainerRawHook),
+            useLogCapture: this.logCaptureHook.use.bind(this.logCaptureHook),
+            useLogMatch: this.logMatchHook.use.bind(this.logMatchHook),
+            useFileSystemSandbox: this.fileSystemSandboxHook.use.bind(this.fileSystemSandboxHook),
+            useResourceLeakDetector: this.resourceLeakDetectorHook.use.bind(this.resourceLeakDetectorHook),
+            usePerformanceBudget: this.performanceBudgetHook.use.bind(this.performanceBudgetHook),
+            useSnapshotState: this.snapshotStateHook.use.bind(this.snapshotStateHook),
         };
     }
 }

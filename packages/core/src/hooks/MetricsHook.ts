@@ -32,7 +32,7 @@ export class MetricsHook extends Hook {
      * Storage for all recorded metrics, organized by metric name.
      * Each metric name maps to an array of recorded values.
      */
-    private metrics: Map<string, any[]> = new Map();
+    private metrics: Map<string, unknown[]> = new Map();
 
     /**
      * Creates a new MetricsHook instance.
@@ -168,7 +168,7 @@ export class MetricsHook extends Hook {
      * @param name - The metric name
      * @param value - The value to record
      */
-    private recordMetric(name: string, value: any) {
+    private recordMetric(name: string, value: unknown) {
         if (!this.metrics.has(name)) {
             this.metrics.set(name, []);
         }
@@ -181,13 +181,18 @@ export class MetricsHook extends Hook {
      */
     private generateReport() {
         const logger = useLogger();
-        logger.debug("\n=== Test Metrics Report ===");
+        logger.debug("=== Test Metrics Report ===");
         for (const [name, values] of this.metrics) {
-            const avg = values.reduce((a, b) => a + b, 0) / values.length;
-            const min = Math.min(...values);
-            const max = Math.max(...values);
-            logger.debug(`${name}: avg=${avg.toFixed(2)}ms, min=${min}ms, max=${max}ms`);
+            const numericValues = values.filter(v => typeof v === "number") as number[];
+            if (numericValues.length === values.length && numericValues.length) {
+                const avg = numericValues.reduce((a, b) => a + b, 0) / numericValues.length;
+                const min = Math.min(...numericValues);
+                const max = Math.max(...numericValues);
+                logger.debug(`${name}: avg=${avg.toFixed(2)}ms, min=${min}ms, max=${max}ms`);
+            } else {
+                logger.debug(`${name}: count=${values.length}`);
+            }
         }
-        logger.debug("===========================\n");
+        logger.debug("===========================");
     }
 }
