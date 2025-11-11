@@ -23,6 +23,7 @@ import {
     SpyHook,
     SupertestHook,
     TimerHook,
+    ApplicationEventHook,
 } from "./hooks";
 
 export type SetUpHooks = {
@@ -65,6 +66,7 @@ export type ReturnHooks = {
     useResourceLeakDetector: ResourceLeakDetectorHook["use"];
     usePerformanceBudget: PerformanceBudgetHook["use"];
     useSnapshotState: SnapshotStateHook["use"];
+    useApplicationEvent: ReturnType<ApplicationEventHook["use"]>;
 };
 
 export class HooksLibrary {
@@ -91,6 +93,7 @@ export class HooksLibrary {
     resourceLeakDetectorHook = new ResourceLeakDetectorHook();
     performanceBudgetHook = new PerformanceBudgetHook();
     snapshotStateHook = new SnapshotStateHook();
+    applicationEventHook = new ApplicationEventHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
@@ -116,6 +119,7 @@ export class HooksLibrary {
         hookManager.addHook(this.resourceLeakDetectorHook);
         hookManager.addHook(this.performanceBudgetHook);
         hookManager.addHook(this.snapshotStateHook);
+        hookManager.addHook(this.applicationEventHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -161,6 +165,7 @@ export class HooksLibrary {
             useResourceLeakDetector: this.resourceLeakDetectorHook.use.bind(this.resourceLeakDetectorHook),
             usePerformanceBudget: this.performanceBudgetHook.use.bind(this.performanceBudgetHook),
             useSnapshotState: this.snapshotStateHook.use.bind(this.snapshotStateHook),
+            useApplicationEvent: this.applicationEventHook.use.bind(this.applicationEventHook)(),
         };
     }
 }

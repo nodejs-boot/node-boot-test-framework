@@ -1,5 +1,12 @@
 # @nodeboot/test
 
+## 2.5.0
+
+### Minor Changes
+
+-   Add applicationEvent hook
+-   Add ApplicationEvent hook
+
 ## 2.4.0
 
 ### Minor Changes

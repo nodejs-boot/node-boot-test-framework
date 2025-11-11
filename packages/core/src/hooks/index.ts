@@ -22,3 +22,4 @@ export {ResourceLeakDetectorHook} from "./ResourceLeakDetectorHook";
 export {PerformanceBudgetHook} from "./PerformanceBudgetHook";
 export {SnapshotStateHook} from "./SnapshotStateHook";
 export {SupertestHook} from "./SupertestHook";
+export {ApplicationEventHook} from "./ApplicationEventHook";
