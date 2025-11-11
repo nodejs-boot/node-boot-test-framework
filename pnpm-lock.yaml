@@ -102,35 +102,35 @@ importers:
   demos/node-test-demo:
     dependencies:
       '@nodeboot/authorization':
-        specifier: ^1.3.5
-        version: 1.3.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^1.3.6
+        version: 1.3.6(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/config':
-        specifier: ^1.3.5
-        version: 1.3.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^1.3.6
+        version: 1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/context':
-        specifier: ^2.2.0
-        version: 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^2.2.1
+        version: 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/core':
-        specifier: ^1.16.1
-        version: 1.16.1(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^1.16.2
+        version: 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/di':
-        specifier: ^1.4.5
-        version: 1.4.5(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)
+        specifier: ^1.4.6
+        version: 1.4.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)
       '@nodeboot/error':
         specifier: ^1.3.0
         version: 1.3.0
       '@nodeboot/express-server':
-        specifier: ^1.9.5
-        version: 1.9.5(@swc/core@1.13.5)(body-parser@1.20.3)(class-transformer@0.5.1)(class-validator@0.14.2)(cookie@1.0.2)(cors@2.8.5)(express-session@1.18.2)(express@4.21.2)(multer@2.0.2)(winston@3.18.3)
+        specifier: ^1.9.6
+        version: 1.9.6(@swc/core@1.13.5)(body-parser@1.20.3)(class-transformer@0.5.1)(class-validator@0.14.2)(cookie@1.0.2)(cors@2.8.5)(express-session@1.18.2)(express@4.21.2)(multer@2.0.2)(winston@3.18.3)
       '@nodeboot/starter-actuator':
-        specifier: ^1.7.5
-        version: 1.7.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^1.7.6
+        version: 1.7.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/starter-openapi':
-        specifier: ^2.4.6
-        version: 2.4.6(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^2.4.7
+        version: 2.4.7(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/starter-persistence':
-        specifier: ^1.13.3
-        version: 1.13.3(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)
+        specifier: ^1.13.4
+        version: 1.13.4(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)
       better-sqlite3:
         specifier: ^9.6.0
         version: 9.6.0
@@ -217,14 +217,14 @@ importers:
   packages/core:
     dependencies:
       '@nodeboot/config':
-        specifier: ^1.3.5
-        version: 1.3.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^1.3.6
+        version: 1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/context':
-        specifier: ^2.2.0
-        version: 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^2.2.1
+        version: 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/core':
-        specifier: ^1.16.1
-        version: 1.16.1(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^1.16.2
+        version: 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@sinonjs/fake-timers':
         specifier: ^11.2.2
         version: 11.3.1
@@ -255,11 +255,11 @@ importers:
   packages/node-test:
     dependencies:
       '@nodeboot/context':
-        specifier: ^2.2.0
-        version: 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^2.2.1
+        version: 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/core':
-        specifier: ^1.16.1
-        version: 1.16.1(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+        specifier: ^1.16.2
+        version: 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/test':
         specifier: workspace:^
         version: link:../core
@@ -938,31 +938,31 @@ packages:
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
 
-  '@nodeboot/authorization@1.3.5':
-    resolution: {integrity: sha512-4mbjD116bBjYZHDG20LxgAN+qLV/XpLZGEu767soMCeafT0noDqos+8SgkKqD4mmGuVUPPIA2plSmiMuAOsYKQ==}
+  '@nodeboot/authorization@1.3.6':
+    resolution: {integrity: sha512-dnCuVhZaN7TIPFR+QBjDQ2Fzbi7Iiu5wX3w54kMwGOEJk8fZFFnSrIYPaSqv25XxctwZAboDf7fCDfG8amd/xg==}
 
-  '@nodeboot/config@1.3.5':
-    resolution: {integrity: sha512-NUcewCJ3jYh2JKjKzwTibX5C5f/zyPFn+SJRARwGFcY+aVkErBWP5GP8koJBmthZUdh3733guXCeE56BhMQWpQ==}
+  '@nodeboot/config@1.3.6':
+    resolution: {integrity: sha512-C15RnvY4c3JZ9dSWBfFZuxCcToG+xIPdhRJWXjTFg4EF2vk5wE94TTdF0wlcqe/CTym3ugoW1lJefMZgshu76g==}
 
-  '@nodeboot/context@2.2.0':
-    resolution: {integrity: sha512-Py6MR4Mh+D8zHDG7/R0QaFZjf6hFt0RB58zLXzqPBZ2iwKMOGW5A5yf5NfNIUqHRSN0Rmj7qeaepmEaLjOOA2Q==}
+  '@nodeboot/context@2.2.1':
+    resolution: {integrity: sha512-LKa4I1csrsXr0RK/pc9pktMfMnFV+3m+0QnKEUznP5TZ5rX7Sn+MroKfBR6csRpbag392eJTnUYXNsNus6S4tA==}
     peerDependencies:
       class-transformer: ^0.5.1
       class-validator: ^0.14.0
       winston: '>=3.10.0'
 
-  '@nodeboot/core@1.16.1':
-    resolution: {integrity: sha512-s3K4/iJll80ds/u+eoO28nAk6ewCH9O//XOY0FUWKM5AosIUXdY0zAL+DIWL83HtAOn/6bVWxqcLmaFRvJSoHA==}
+  '@nodeboot/core@1.16.2':
+    resolution: {integrity: sha512-jYTTiWd+E2Q2riZgUMSIMPOO/KCnEuzdq3CD6JWrguAkyJOgHW+asoTt9mLmceJpfSxin02vl9SY3X176T6Uag==}
     peerDependencies:
       class-transformer: ^0.5.1
       class-validator: ^0.14.0
       winston: '>=3.10.0'
 
-  '@nodeboot/di@1.4.5':
-    resolution: {integrity: sha512-Lhj0Rl3UiwqDck+Jjly0SP5GcgbwBI19dKaeuwwzSi9AQNviRvxQy8RJhwctJbIDQ5N5CW+Oy458K7SHewlHwg==}
+  '@nodeboot/di@1.4.6':
+    resolution: {integrity: sha512-rypf0UGfGBR3JCWt6kKsj+GOVxZLHlxSEDzyHmFsw5QR1kBTebTTSG2uz8mRYeXj9ZFpk6g0roiKZipcadpHDA==}
 
-  '@nodeboot/engine@1.6.4':
-    resolution: {integrity: sha512-krNvLbFUDMD9VPLh901V2XFaqy4dtZQpK0m7Mgf+zpL0SicJt5Yrw3UGHFd8InKpZWCLkfojozXS51iMUgECYA==}
+  '@nodeboot/engine@1.6.5':
+    resolution: {integrity: sha512-/XW0VcuTi7HieoAYhgRShTw1YJE8q5sCMm+d7Bw1eFZVFfTHoO8vl5WpJT/RFoeytOlQp2a6SEBij5vVeWOvFg==}
     peerDependencies:
       class-transformer: ^0.5.1
       class-validator: ^0.14.0
@@ -970,8 +970,8 @@ packages:
   '@nodeboot/error@1.3.0':
     resolution: {integrity: sha512-pj3lxIwXyB0hRXEezGoBxyiDSXNedah7uizmagWd/dp2tTYaxUAg+2NMNx2sVffn34AqEuHSLXkEsHBO/JTVdQ==}
 
-  '@nodeboot/express-server@1.9.5':
-    resolution: {integrity: sha512-HWC+DdAD+yp1lbg8WkNa7N3JtQ4BsMapUuVcy7+GHfJDarAHcJnrzk52S33jlVLuMzts9YNq+MiktDoiStI5jw==}
+  '@nodeboot/express-server@1.9.6':
+    resolution: {integrity: sha512-gu09mWDuFtpeTJhn0xHjZLfm2UjxBUFgBivv20nTqDeRkM95SpVsClDPaESmRIvwM4CVOj19LTIWMOwX5rg6GA==}
     peerDependencies:
       body-parser: '>=1.20.2'
       cookie: '>=0.6.0'
@@ -980,16 +980,16 @@ packages:
       express-session: '>=1.17.3'
       multer: '>=2.0.2'
 
-  '@nodeboot/starter-actuator@1.7.5':
-    resolution: {integrity: sha512-n/zNiRNw6IAbvoeLoAc9YOtjIlWR5wtxHY6T7KfHQ2mOKD3zywYZVXL+0Kg39wYYaYUZsL2D1fGrsv211wdOdQ==}
+  '@nodeboot/starter-actuator@1.7.6':
+    resolution: {integrity: sha512-aogvmRKlvBjLCnJ/+S8A4wCJw6S/FhUt9vJIzpGTFxuh/Pz9PySsXG50IPlMV0xvP18GI8wBJkAvvRIB6VONXQ==}
     peerDependencies:
       winston: '>=3.10.0'
 
-  '@nodeboot/starter-openapi@2.4.6':
-    resolution: {integrity: sha512-b4LOKsYmcE1UCeFdqeKeY5q4GcSlGKoFX/kwMS+mnT+DwejuE+YZS/Vey6ZKOy25QXoiWhDI+h+Rb/hfhzCOEw==}
+  '@nodeboot/starter-openapi@2.4.7':
+    resolution: {integrity: sha512-cHa0rIECrFsiPb3jfBfiUkFnDKrpEY7ITn/zB26JkqjOwdLRFDExIQVU8hif/DHljqeQ8Nk6P1AWYqun5PghsQ==}
 
-  '@nodeboot/starter-persistence@1.13.3':
-    resolution: {integrity: sha512-Ez+2tvHOU5NtHuA59ha/SQ42vu1DZNcRAqt+8sCEiCsTMv4GoTUVKDIaLViMDvT1n5A0v/1csd4iiRSyiCA0yw==}
+  '@nodeboot/starter-persistence@1.13.4':
+    resolution: {integrity: sha512-H11Bah0ynAZlI3V/jefd0EY8rC9EhFG1rHOjNOS0YJXpbkCQGnokJA8pX5Ek48MIs/FIVNsupQpzxfgqgZ1rpg==}
     peerDependencies:
       typeorm: 0.3.27
       winston: '>=3.10.0'
@@ -8133,22 +8133,22 @@ snapshots:
 
   '@noble/hashes@1.8.0': {}
 
-  '@nodeboot/authorization@1.3.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
+  '@nodeboot/authorization@1.3.6(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
     dependencies:
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/engine': 1.6.4(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/engine': 1.6.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
     transitivePeerDependencies:
       - class-transformer
       - class-validator
       - winston
 
-  '@nodeboot/config@1.3.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
+  '@nodeboot/config@1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
     dependencies:
       '@backstage/cli-common': 0.1.15
       '@backstage/config': 1.3.5
       '@backstage/config-loader': 1.10.5(@swc/core@1.13.5)
       '@backstage/types': 1.2.2
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       minimist: 1.2.8
     transitivePeerDependencies:
       - '@swc/core'
@@ -8157,19 +8157,19 @@ snapshots:
       - class-validator
       - winston
 
-  '@nodeboot/context@2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
+  '@nodeboot/context@2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
     dependencies:
       class-transformer: 0.5.1
       class-validator: 0.14.2
       reflect-metadata: 0.2.2
       winston: 3.18.3
 
-  '@nodeboot/core@1.16.1(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
+  '@nodeboot/core@1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
     dependencies:
-      '@nodeboot/config': 1.3.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/di': 1.4.5(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)
-      '@nodeboot/engine': 1.6.4(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/config': 1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/di': 1.4.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)
+      '@nodeboot/engine': 1.6.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       class-transformer: 0.5.1
       class-validator: 0.14.2
       glob: 10.4.5
@@ -8181,9 +8181,9 @@ snapshots:
       - '@swc/core'
       - '@swc/wasm'
 
-  '@nodeboot/di@1.4.5(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)':
+  '@nodeboot/di@1.4.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)':
     dependencies:
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
     optionalDependencies:
       inversify: 6.2.2(reflect-metadata@0.2.2)
       typedi: 0.10.0
@@ -8193,9 +8193,9 @@ snapshots:
       - reflect-metadata
       - winston
 
-  '@nodeboot/engine@1.6.4(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
+  '@nodeboot/engine@1.6.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
     dependencies:
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/error': 1.3.0
       class-transformer: 0.5.1
       class-validator: 0.14.2
@@ -8205,11 +8205,11 @@ snapshots:
 
   '@nodeboot/error@1.3.0': {}
 
-  '@nodeboot/express-server@1.9.5(@swc/core@1.13.5)(body-parser@1.20.3)(class-transformer@0.5.1)(class-validator@0.14.2)(cookie@1.0.2)(cors@2.8.5)(express-session@1.18.2)(express@4.21.2)(multer@2.0.2)(winston@3.18.3)':
+  '@nodeboot/express-server@1.9.6(@swc/core@1.13.5)(body-parser@1.20.3)(class-transformer@0.5.1)(class-validator@0.14.2)(cookie@1.0.2)(cors@2.8.5)(express-session@1.18.2)(express@4.21.2)(multer@2.0.2)(winston@3.18.3)':
     dependencies:
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/core': 1.16.1(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/engine': 1.6.4(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/core': 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/engine': 1.6.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/error': 1.3.0
       body-parser: 1.20.3
       cookie: 1.0.2
@@ -8225,11 +8225,11 @@ snapshots:
       - class-validator
       - winston
 
-  '@nodeboot/starter-actuator@1.7.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
+  '@nodeboot/starter-actuator@1.7.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
     dependencies:
-      '@nodeboot/config': 1.3.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/engine': 1.6.4(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/config': 1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/engine': 1.6.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       dayjs: 1.11.19
       prom-client: 14.2.0
       properties-reader: 2.3.0
@@ -8246,10 +8246,10 @@ snapshots:
       - class-validator
       - supports-color
 
-  '@nodeboot/starter-openapi@2.4.6(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
+  '@nodeboot/starter-openapi@2.4.7(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)':
     dependencies:
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/engine': 1.6.4(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/engine': 1.6.5(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       class-validator-jsonschema: 4.0.0(class-transformer@0.5.1)(class-validator@0.14.2)
       lodash.capitalize: 4.2.1
       lodash.merge: 4.6.2
@@ -8269,12 +8269,12 @@ snapshots:
       - supports-color
       - winston
 
-  '@nodeboot/starter-persistence@1.13.3(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)':
+  '@nodeboot/starter-persistence@1.13.4(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)':
     dependencies:
-      '@nodeboot/config': 1.3.5(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/context': 2.2.0(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/core': 1.16.1(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/di': 1.4.5(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)
+      '@nodeboot/config': 1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/core': 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
+      '@nodeboot/di': 1.4.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)
       reflect-metadata: 0.2.2
       typeorm: 0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
       typeorm-transactional: 0.5.0(reflect-metadata@0.2.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))
@@ -8845,7 +8845,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 22.18.8
+      '@types/node': 24.9.2
 
   '@types/long@4.0.2': {}
 
@@ -8871,7 +8871,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 22.18.8
+      '@types/node': 24.9.2
 
   '@types/seedrandom@2.4.34': {}
 

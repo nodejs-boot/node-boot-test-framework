@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 2.5.1
+
+### Patch Changes
+
+-   update nodeboot core
+
 ## 2.5.0
 
 ### Minor Changes
