@@ -1,5 +1,16 @@
 # @nodeboot/node-test
 
+## 2.7.0
+
+### Minor Changes
+
+-   Add handy hooks that can be used without the useNodeBoot context hook
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.7.0
+
 ## 2.5.1
 
 ### Patch Changes

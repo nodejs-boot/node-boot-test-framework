@@ -8,3 +8,4 @@ export {
     removeDefaultUncaughtExceptionTestListener,
     removeDefaultUnhandledRejectionTestListener,
 } from "./utils/test-listener";
+export * from "./handyhooks";
