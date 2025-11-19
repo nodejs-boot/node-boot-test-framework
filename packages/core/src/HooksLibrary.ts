@@ -2,12 +2,14 @@ import {HookManager} from "./HookManager";
 import {
     AddressHook,
     AppContextHook,
+    ApplicationEventHook,
     ConfigHook,
     EnvHook,
     FileSystemSandboxHook,
     GenericContainerHook,
     GenericContainerRawHook,
     HttpClientHook,
+    IocContainerHook,
     LifecycleHook,
     LogCaptureHook,
     LogMatchHook,
@@ -23,7 +25,6 @@ import {
     SpyHook,
     SupertestHook,
     TimerHook,
-    ApplicationEventHook,
 } from "./hooks";
 
 export type SetUpHooks = {
@@ -67,6 +68,7 @@ export type ReturnHooks = {
     usePerformanceBudget: PerformanceBudgetHook["use"];
     useSnapshotState: SnapshotStateHook["use"];
     useApplicationEvent: ReturnType<ApplicationEventHook["use"]>;
+    useIocContainer: ReturnType<IocContainerHook["use"]>;
 };
 
 export class HooksLibrary {
@@ -94,6 +96,7 @@ export class HooksLibrary {
     performanceBudgetHook = new PerformanceBudgetHook();
     snapshotStateHook = new SnapshotStateHook();
     applicationEventHook = new ApplicationEventHook();
+    iocContainerHook = new IocContainerHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
@@ -120,6 +123,7 @@ export class HooksLibrary {
         hookManager.addHook(this.performanceBudgetHook);
         hookManager.addHook(this.snapshotStateHook);
         hookManager.addHook(this.applicationEventHook);
+        hookManager.addHook(this.iocContainerHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -165,6 +169,7 @@ export class HooksLibrary {
             useResourceLeakDetector: this.resourceLeakDetectorHook.use.bind(this.resourceLeakDetectorHook),
             usePerformanceBudget: this.performanceBudgetHook.use.bind(this.performanceBudgetHook),
             useSnapshotState: this.snapshotStateHook.use.bind(this.snapshotStateHook),
+            useIocContainer: this.iocContainerHook.use.bind(this.iocContainerHook)(),
             useApplicationEvent: this.applicationEventHook.use.bind(this.applicationEventHook)(),
         };
     }

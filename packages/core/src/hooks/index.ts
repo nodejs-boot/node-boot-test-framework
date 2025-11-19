@@ -23,3 +23,4 @@ export {PerformanceBudgetHook} from "./PerformanceBudgetHook";
 export {SnapshotStateHook} from "./SnapshotStateHook";
 export {SupertestHook} from "./SupertestHook";
 export {ApplicationEventHook} from "./ApplicationEventHook";
+export {IocContainerHook} from "./IocContainerHook";

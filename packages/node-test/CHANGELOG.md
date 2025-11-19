@@ -1,5 +1,16 @@
 # @nodeboot/node-test
 
+## 2.8.0
+
+### Minor Changes
+
+-   Add Ioc Container Hook
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.8.0
+
 ## 2.7.0
 
 ### Minor Changes
