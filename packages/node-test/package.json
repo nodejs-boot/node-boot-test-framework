@@ -1,6 +1,6 @@
 {
     "name": "@nodeboot/node-test",
-    "version": "2.8.0",
+    "version": "2.11.0",
     "description": "Test framework for Node_Boot projects using node:test",
     "author": "Manuel Santos <ney.br.santos@gmail.com>",
     "license": "MIT",

@@ -1,5 +1,38 @@
 # @nodeboot/node-test
 
+## 2.11.0
+
+### Minor Changes
+
+-   Await application.adapters.bound lifecycle before test framework runs
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.11.0
+
+## 2.10.0
+
+### Minor Changes
+
+-   update signature of useIocContainer hook
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.10.0
+
+## 2.9.0
+
+### Minor Changes
+
+-   Fix misconfigure hooks
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.9.0
+
 ## 2.8.0
 
 ### Minor Changes

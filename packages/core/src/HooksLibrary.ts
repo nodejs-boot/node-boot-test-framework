@@ -67,8 +67,8 @@ export type ReturnHooks = {
     useResourceLeakDetector: ResourceLeakDetectorHook["use"];
     usePerformanceBudget: PerformanceBudgetHook["use"];
     useSnapshotState: SnapshotStateHook["use"];
-    useApplicationEvent: ReturnType<ApplicationEventHook["use"]>;
-    useIocContainer: ReturnType<IocContainerHook["use"]>;
+    useApplicationEvent: ApplicationEventHook["use"];
+    useIocContainer: IocContainerHook["use"];
 };
 
 export class HooksLibrary {
@@ -169,8 +169,8 @@ export class HooksLibrary {
             useResourceLeakDetector: this.resourceLeakDetectorHook.use.bind(this.resourceLeakDetectorHook),
             usePerformanceBudget: this.performanceBudgetHook.use.bind(this.performanceBudgetHook),
             useSnapshotState: this.snapshotStateHook.use.bind(this.snapshotStateHook),
-            useIocContainer: this.iocContainerHook.use.bind(this.iocContainerHook)(),
-            useApplicationEvent: this.applicationEventHook.use.bind(this.applicationEventHook)(),
+            useIocContainer: this.iocContainerHook.use.bind(this.iocContainerHook),
+            useApplicationEvent: this.applicationEventHook.use.bind(this.applicationEventHook),
         };
     }
 }

@@ -43,9 +43,12 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
         this.appInstance = new this.AppClass();
         this.bootAppView = await this.appInstance.start(testConfig);
 
-        // Wait until persistence layer is fully started
         const applicationLifecycle = ApplicationContext.getIocContainer()?.get(ApplicationLifecycleBridge);
+        // Wait until persistence layer is fully started
         await applicationLifecycle?.awaitEvent("persistence.started");
+
+        // This awaits for postConstruct lifecycle events to complete
+        await applicationLifecycle?.awaitEvent("application.adapters.bound");
 
         // Give event loop a chance to finish pending microtasks
         await new Promise(r => setImmediate(r));
