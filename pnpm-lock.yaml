@@ -238,6 +238,9 @@ importers:
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.3
+      mongodb-memory-server:
+        specifier: ^8.16.1
+        version: 8.16.1
     optionalDependencies:
       axios:
         specifier: ^1.7.9
@@ -250,7 +253,7 @@ importers:
         version: 7.1.4
       typeorm:
         specifier: 0.3.27
-        version: 0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
+        version: 0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4))
 
   packages/node-test:
     dependencies:
@@ -14755,7 +14758,7 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)):
+  typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4)):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 3.17.0
@@ -14775,7 +14778,7 @@ snapshots:
     optionalDependencies:
       better-sqlite3: 9.6.0
       mongodb: 6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7)
-      ts-node: 10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)
+      ts-node: 10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color

@@ -1,5 +1,16 @@
 # @nodeboot/node-test
 
+## 2.12.0
+
+### Minor Changes
+
+-   Add Test hooks for MongoDB in memory Database and ReplicaSet
+
+### Patch Changes
+
+-   Updated dependencies
+    -   @nodeboot/test@2.12.0
+
 ## 2.11.0
 
 ### Minor Changes

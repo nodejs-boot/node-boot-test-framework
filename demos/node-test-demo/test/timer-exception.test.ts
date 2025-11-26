@@ -4,7 +4,10 @@ import {useNodeBoot} from "@nodeboot/node-test";
 import {EmptyApp} from "../src/empty-app";
 
 describe("Timer exception capture", () => {
-    const {useTimer} = useNodeBoot(EmptyApp);
+    const {useTimer} = useNodeBoot(EmptyApp, ({useTimer}) => {
+        // required to enable fake timers
+        useTimer({});
+    });
 
     it("surfaces timer callback thrown error with assert.throws via fake timers", () => {
         const {control} = useTimer();

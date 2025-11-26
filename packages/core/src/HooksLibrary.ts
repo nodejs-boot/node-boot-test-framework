@@ -16,6 +16,8 @@ import {
     MetricsHook,
     MockHook,
     MongoContainerHook,
+    MongoMemoryServerHook,
+    MongoMemoryReplSetHook,
     PactumHook,
     PerformanceBudgetHook,
     RepositoryHook,
@@ -37,6 +39,8 @@ export type SetUpHooks = {
     useLifecycle: LifecycleHook["call"];
     usePactum: PactumHook["call"];
     useMongoContainer: MongoContainerHook["call"];
+    useMongoMemoryServer: MongoMemoryServerHook["call"];
+    useMongoMemoryReplSet: MongoMemoryReplSetHook["call"];
     useGenericContainerRaw: GenericContainerRawHook["call"];
     useGenericContainer: GenericContainerHook["call"];
     useLogCapture: LogCaptureHook["call"];
@@ -60,6 +64,8 @@ export type ReturnHooks = {
     useMetrics: MetricsHook["use"];
     useGenericContainerRaw: GenericContainerRawHook["use"];
     useMongoContainer: MongoContainerHook["use"];
+    useMongoMemoryServer: MongoMemoryServerHook["use"];
+    useMongoMemoryReplSet: MongoMemoryReplSetHook["use"];
     useGenericContainer: GenericContainerHook["use"];
     useLogCapture: LogCaptureHook["use"];
     useLogMatch: LogMatchHook["use"];
@@ -87,6 +93,8 @@ export class HooksLibrary {
     genericContainerRawHook = new GenericContainerRawHook();
     metricsHook = new MetricsHook();
     mongoContainerHook = new MongoContainerHook();
+    mongoMemoryServerHook = new MongoMemoryServerHook();
+    mongoMemoryReplSetHook = new MongoMemoryReplSetHook();
     genericContainerHook = new GenericContainerHook();
     timerHook = new TimerHook();
     logCaptureHook = new LogCaptureHook();
@@ -114,6 +122,8 @@ export class HooksLibrary {
         hookManager.addHook(this.supertestHook);
         hookManager.addHook(this.metricsHook);
         hookManager.addHook(this.mongoContainerHook);
+        hookManager.addHook(this.mongoMemoryServerHook);
+        hookManager.addHook(this.mongoMemoryReplSetHook);
         hookManager.addHook(this.genericContainerHook);
         hookManager.addHook(this.timerHook);
         hookManager.addHook(this.logCaptureHook);
@@ -138,6 +148,8 @@ export class HooksLibrary {
             useLifecycle: this.lifecycleHook.call.bind(this.lifecycleHook),
             usePactum: this.pactumHook.call.bind(this.pactumHook),
             useMongoContainer: this.mongoContainerHook.call.bind(this.mongoContainerHook),
+            useMongoMemoryServer: this.mongoMemoryServerHook.call.bind(this.mongoMemoryServerHook),
+            useMongoMemoryReplSet: this.mongoMemoryReplSetHook.call.bind(this.mongoMemoryReplSetHook),
             useGenericContainer: this.genericContainerHook.call.bind(this.genericContainerHook),
             useLogCapture: this.logCaptureHook.call.bind(this.logCaptureHook),
             useLogMatch: this.logMatchHook.call.bind(this.logMatchHook),
@@ -161,6 +173,8 @@ export class HooksLibrary {
             useSupertest: this.supertestHook.use.bind(this.supertestHook),
             useMetrics: this.metricsHook.use.bind(this.metricsHook),
             useMongoContainer: this.mongoContainerHook.use.bind(this.mongoContainerHook),
+            useMongoMemoryServer: this.mongoMemoryServerHook.use.bind(this.mongoMemoryServerHook),
+            useMongoMemoryReplSet: this.mongoMemoryReplSetHook.use.bind(this.mongoMemoryReplSetHook),
             useGenericContainer: this.genericContainerHook.use.bind(this.genericContainerHook),
             useGenericContainerRaw: this.genericContainerRawHook.use.bind(this.genericContainerRawHook),
             useLogCapture: this.logCaptureHook.use.bind(this.logCaptureHook),

@@ -4,8 +4,11 @@ import {useNodeBoot} from "@nodeboot/node-test";
 import {TestAppWithMongoPersistence} from "../src/app";
 
 describe("TimerHook Demo", () => {
-    const {useTimer} = useNodeBoot(TestAppWithMongoPersistence, ({useConfig, useMongoContainer}) => {
+    const {useTimer} = useNodeBoot(TestAppWithMongoPersistence, ({useConfig, useMongoContainer, useTimer}) => {
         useConfig({app: {port: 35002}});
+
+        // required to enable fake timers
+        useTimer({toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "Date"]});
 
         useMongoContainer({
             dbName: "test-db",

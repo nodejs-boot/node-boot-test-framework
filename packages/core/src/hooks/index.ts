@@ -11,6 +11,8 @@ export {RepositoryHook} from "./RepositoryHook";
 export {ServiceHook} from "./ServiceHook";
 export {MetricsHook} from "./MetricsHook";
 export {MongoContainerHook} from "./MongoContainerHook";
+export {MongoMemoryServerHook} from "./MongoMemoryServerHook";
+export {MongoMemoryReplSetHook} from "./MongoMemoryReplSetHook";
 export {GenericContainerHook} from "./GenericContainerHook";
 export {GenericContainerRawHook} from "./GenericContainerRawHook";
 export {TimerHook} from "./TimerHook";
