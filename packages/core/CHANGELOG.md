@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 2.13.0
+
+### Minor Changes
+
+-   Add Toxiproxy test hook to provide network resilience test features
+
 ## 2.12.0
 
 ### Minor Changes

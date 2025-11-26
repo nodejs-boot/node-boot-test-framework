@@ -27,6 +27,7 @@ import {
     SpyHook,
     SupertestHook,
     TimerHook,
+    ToxiproxyHook,
 } from "./hooks";
 
 export type SetUpHooks = {
@@ -49,6 +50,7 @@ export type SetUpHooks = {
     useResourceLeakDetector: ResourceLeakDetectorHook["call"];
     usePerformanceBudget: PerformanceBudgetHook["call"];
     useSnapshotState: SnapshotStateHook["call"];
+    useToxiproxy: ToxiproxyHook["call"];
 };
 
 export type ReturnHooks = {
@@ -75,6 +77,7 @@ export type ReturnHooks = {
     useSnapshotState: SnapshotStateHook["use"];
     useApplicationEvent: ApplicationEventHook["use"];
     useIocContainer: IocContainerHook["use"];
+    useToxiproxy: ToxiproxyHook["use"];
 };
 
 export class HooksLibrary {
@@ -105,6 +108,7 @@ export class HooksLibrary {
     snapshotStateHook = new SnapshotStateHook();
     applicationEventHook = new ApplicationEventHook();
     iocContainerHook = new IocContainerHook();
+    toxiproxyHook = new ToxiproxyHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
@@ -134,6 +138,7 @@ export class HooksLibrary {
         hookManager.addHook(this.snapshotStateHook);
         hookManager.addHook(this.applicationEventHook);
         hookManager.addHook(this.iocContainerHook);
+        hookManager.addHook(this.toxiproxyHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -157,6 +162,7 @@ export class HooksLibrary {
             useResourceLeakDetector: this.resourceLeakDetectorHook.call.bind(this.resourceLeakDetectorHook),
             usePerformanceBudget: this.performanceBudgetHook.call.bind(this.performanceBudgetHook),
             useSnapshotState: this.snapshotStateHook.call.bind(this.snapshotStateHook),
+            useToxiproxy: this.toxiproxyHook.call.bind(this.toxiproxyHook),
         };
     }
 
@@ -185,6 +191,7 @@ export class HooksLibrary {
             useSnapshotState: this.snapshotStateHook.use.bind(this.snapshotStateHook),
             useIocContainer: this.iocContainerHook.use.bind(this.iocContainerHook),
             useApplicationEvent: this.applicationEventHook.use.bind(this.applicationEventHook),
+            useToxiproxy: this.toxiproxyHook.use.bind(this.toxiproxyHook),
         };
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "@nodeboot/test",
-    "version": "2.12.0",
+    "version": "2.13.0",
     "description": "Test framework for Node_Boot projects",
     "author": "Manuel Santos <ney.br.santos@gmail.com>",
     "license": "MIT",
@@ -42,6 +42,7 @@
         "typeorm": "^0.3.27"
     },
     "peerDependencies": {
+        "@testcontainers/toxiproxy": "^11.7.2",
         "mongodb-memory-server": "^10.1.2",
         "testcontainers": "^11.7.2"
     },
@@ -51,9 +52,13 @@
         },
         "mongodb-memory-server": {
             "optional": true
+        },
+        "@testcontainers/toxiproxy": {
+            "optional": true
         }
     },
     "devDependencies": {
+        "@testcontainers/toxiproxy": "^11.8.1",
         "@types/supertest": "^6.0.2",
         "mongodb-memory-server": "^8.16.1"
     },
