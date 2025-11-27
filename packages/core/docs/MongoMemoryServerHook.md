@@ -6,6 +6,10 @@ The `MongoMemoryServerHook` provides an in-memory MongoDB instance for testing u
 
 **The hook only runs when explicitly configured** by calling `useMongoMemoryServer()` in the setup phase. If you don't call this function, the hook is inactive and won't affect your test lifecycle. This allows the hook to be registered globally while only activating when needed.
 
+## Purpose
+
+Provide a lightweight, Docker-free MongoDB instance for rapid CRUD and simple aggregation tests. Optimized for speed in CI and local development when replica set features (transactions/change streams) are not required.
+
 ## Features
 
 -   **No Docker Required**: Runs MongoDB in-memory without containers
@@ -287,6 +291,14 @@ describe("MongoDB Environment Variables", () => {
 -   You need to test MongoDB features not available in memory server
 -   Testing replication or clustering scenarios
 
+## Integration Patterns
+
+| Goal                   | Pattern                                                                 |
+| ---------------------- | ----------------------------------------------------------------------- |
+| Repository integration | Use `RepositoryHook` to persist domain entities against memory DB.      |
+| Fast isolated tests    | Prefer over container for speed & no external dependencies.             |
+| Seeding strategy       | Seed using repositories/services in a `beforeEach` block for isolation. |
+
 ## Lifecycle
 
 **Important: The hook only activates when `useMongoMemoryServer()` is called in the setup phase.**
@@ -371,41 +383,57 @@ const {useMongoMemoryServer} = useNodeBoot(EmptyApp, ({useMongoMemoryServer}) =>
 
 4. **Performance**: For test suites with many test files, consider sharing a single instance across tests rather than spinning up new instances.
 
-## Troubleshooting
+## Troubleshooting Quick Reference
 
-### Binary Download Issues
+| Symptom                             | Cause                                      | Fix                                                |
+| ----------------------------------- | ------------------------------------------ | -------------------------------------------------- |
+| Hook inactive                       | Not called in setup                        | Ensure `useMongoMemoryServer()` in setup callback. |
+| Slow first run                      | Initial binary download                    | Cache `downloadDir` between runs.                  |
+| Authentication expectations failing | Auth not supported without explicit config | Use container variant for advanced auth scenarios. |
 
-If you encounter download issues, specify a mirror:
+## Performance Tips
 
-```typescript
-process.env.MONGOMS_DOWNLOAD_MIRROR = "https://fastdl.mongodb.org";
-```
+-   Group high-Mongo test suites to amortize startup cost.
+-   Prefer smaller fixture inserts; large bulk loads increase memory use.
 
-### Port Conflicts
+## Edge Cases
 
-If you get port conflicts, let the system assign a random port (default behavior):
-
-```typescript
-const {useMongoMemoryServer} = useNodeBoot(EmptyApp, ({useMongoMemoryServer}) => {
-    useMongoMemoryServer({
-        // Don't specify port - let system choose
-        instance: {
-            dbName: "testdb",
-        },
-    });
-});
-```
-
-### Memory Issues
-
-For resource-constrained environments, ensure proper cleanup:
-
-```typescript
-// The hook handles this automatically in afterTests()
-```
+| Scenario                           | Consideration                                                    |
+| ---------------------------------- | ---------------------------------------------------------------- |
+| Binary cache corruption            | Delete cached download directory and re-run.                     |
+| Memory pressure in large test data | Use smaller datasets or container-based Mongo for higher limits. |
+| Need transactions/change streams   | Switch to `MongoMemoryReplSetHook` or container replica set.     |
+| Port already in use (explicit)     | Remove explicit port to let system choose free port.             |
 
 ## See Also
 
--   [MongoContainerHook](./MongoContainerHook.md) - Docker-based MongoDB for integration tests
--   [RepositoryHook](./RepositoryHook.md) - TypeORM repository access
--   [GenericContainerHook](./GenericContainerHook.md) - Generic container management
+-   [MongoMemoryReplSetHook](./MongoMemoryReplSetHook.md) — Transactions & change streams.
+-   [MongoContainerHook](./MongoContainerHook.md) — Real Mongo via Docker.
+-   [RepositoryHook](./RepositoryHook.md) — Persistence layer access.
+
+## Additional Usage Examples
+
+```typescript
+import {describe, it} from "node:test";
+import assert from "node:assert/strict";
+import {useNodeBoot} from "@nodeboot/node-test";
+import {EmptyApp} from "../src/empty-app";
+
+describe("MongoMemoryServerHook - Insert & Find", () => {
+    const {useMongoMemoryServer} = useNodeBoot(EmptyApp, ({useMongoMemoryServer}) => {
+        useMongoMemoryServer({instance: {dbName: "quick-test"}});
+    });
+
+    it("inserts a document", async () => {
+        const {mongoUri} = useMongoMemoryServer();
+        const {MongoClient} = await import("mongodb");
+        const client = new MongoClient(mongoUri);
+        await client.connect();
+        const col = client.db().collection("users");
+        await col.insertOne({email: "a@example.com"});
+        const found = await col.findOne({email: "a@example.com"});
+        assert.ok(found);
+        await client.close();
+    });
+});
+```

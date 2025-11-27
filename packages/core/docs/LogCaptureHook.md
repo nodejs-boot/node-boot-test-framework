@@ -1,13 +1,42 @@
 # LogCaptureHook
 
-Captures logs emitted by the shared framework logger during test execution for assertions and diagnostics.
+Captures logs emitted by the framework logger during tests to assert log content, levels, and sequences. Useful for validating operational behavior, warnings, and error paths without relying on console output.
 
 ## Features
 
--   Captures logs at or above a chosen minimum level.
--   Per-test log isolation (`getCurrentTest`).
--   Global aggregation (`getAll`).
--   Optional automatic failure when error-level logs appear.
+-   Minimum level filter (debug/info/warn/error)
+-   Per-test isolation and global aggregation
+-   Optional automatic failure on error-level logs
+-   Simple API: getCurrentTest, getAll, clearCurrent
+
+## Setup / Activation
+
+Register in `useNodeBoot` setup callback:
+
+```ts
+import {describe, it} from "node:test";
+import assert from "node:assert/strict";
+import {useNodeBoot} from "@nodeboot/node-test";
+import {EmptyApp} from "../src/empty-app";
+
+describe("LogCaptureHook - Basic", () => {
+    const {useLogCapture, useLogger} = useNodeBoot(EmptyApp, ({useLogCapture}) => {
+        useLogCapture({level: "info"});
+    });
+
+    it("captures info & warn logs", () => {
+        const logger = useLogger();
+        const {getCurrentTest} = useLogCapture();
+
+        logger.info("Test log message");
+        logger.warn("Warning message");
+
+        const logs = getCurrentTest();
+        assert.strictEqual(logs.length, 2);
+        assert.ok(logs.some(l => l.message.includes("Test log message")));
+    });
+});
+```
 
 ## Configuration
 
@@ -18,38 +47,75 @@ useLogCapture({
 });
 ```
 
-## Usage
+## Usage Examples
+
+### Assert no errors
 
 ```ts
-const {getCurrentTest, getAll, clearCurrent} = useLogCapture();
+const {getCurrentTest} = useLogCapture();
 const errors = getCurrentTest().filter(e => e.level === "error");
-expect(errors.length).toBe(0);
-clearCurrent(); // optional
+assert.strictEqual(errors.length, 0);
+```
+
+### Per-test isolation
+
+```ts
+it("first test", () => {
+    const {getCurrentTest} = useLogCapture();
+    const logger = useLogger();
+    logger.info("First test log");
+    assert.strictEqual(getCurrentTest().length, 1);
+});
+
+it("second test", () => {
+    const {getCurrentTest} = useLogCapture();
+    const logger = useLogger();
+    logger.info("Second test log");
+    const logs = getCurrentTest();
+    assert.strictEqual(logs.length, 1);
+    assert.ok(logs[0].message.includes("Second test"));
+});
+```
+
+### Global aggregation
+
+```ts
+const {getAll} = useLogCapture();
+assert.ok(getAll().length >= 2);
+```
+
+### Clear current buffer
+
+```ts
+const {getCurrentTest, clearCurrent} = useLogCapture();
+// ... emit some logs
+clearCurrent();
+assert.strictEqual(getCurrentTest().length, 0);
 ```
 
 ## API
 
 `useLogCapture()` returns:
 
--   `getAll(): LogEntry[]` all captured entries.
--   `getCurrentTest(): LogEntry[]` entries for the current test.
--   `clearCurrent(): void` empties current test buffer.
+-   `getAll(): LogEntry[]` — all captured entries across all tests
+-   `getCurrentTest(): LogEntry[]` — entries for the current test
+-   `clearCurrent(): void` — empties current test buffer
 
-`LogEntry`:
+`LogEntry` shape:
 
 ```ts
 {
-    level: string;
-    message: string;
+    level: string; // "debug" | "info" | "warn" | "error"
+    message: string; // log message
 }
 ```
 
 ## Lifecycle
 
--   beforeTests: patches logger.
--   beforeEachTest: resets current buffer.
--   afterEachTest: performs `assertNoError` check.
--   afterTests: restores original logger and clears buffers.
+-   beforeTests: patches logger
+-   beforeEachTest: resets current buffer
+-   afterEachTest: performs `assertNoError` check
+-   afterTests: restores original logger and clears buffers
 
 ## Assertions Examples
 
@@ -59,12 +125,20 @@ expect(getAll().some(e => /started/i.test(e.message))).toBe(true);
 
 ## Best Practices
 
--   Use `assertNoError` sparingly; intentional error logging for negative tests will fail them.
--   Combine with `LogMatchHook` for richer pattern checks.
+-   Use `assertNoError` sparingly; negative tests that emit errors will fail
+-   Combine with `LogMatchHook` for richer pattern checks
+-   Keep level at `info` or `warn` to reduce noise
 
 ## Troubleshooting
 
-If no logs are captured:
+**No logs captured**
 
--   Ensure tests use the same logger instance via framework utilities.
--   Verify minimum level is not excluding desired logs.
+-   Ensure tests use the framework logger (not `console.log`)
+-   Verify minimum level isn’t excluding desired logs
+-   Check logger initialization
+
+**Too many logs**
+
+-   Increase minimum level
+-   Filter by message pattern
+-   Prefer `getCurrentTest()` instead of `getAll()` for isolation

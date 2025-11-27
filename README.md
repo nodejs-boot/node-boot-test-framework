@@ -607,37 +607,38 @@ const {useHttp} = useNodeBoot(MyApp);
 
 ## Hook Reference
 
-### Core Package Setup Hooks
-
-| Hook Name       | Hook Signature                                                           | Scope | Description                                         | Example Usage                                                 |
-| --------------- | ------------------------------------------------------------------------ | ----- | --------------------------------------------------- | ------------------------------------------------------------- |
-| `useConfig`     | `(config: JsonObject) => void`                                           | Setup | Override application configuration for tests        | `useConfig({app: {port: 3001}, database: {url: "test.db"}})`  |
-| `useEnv`        | `(vars: Record<string, string>) => void`                                 | Setup | Set environment variables for the test session      | `useEnv({NODE_ENV: "test", API_KEY: "test-key"})`             |
-| `useMock`       | `<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) => void` | Setup | Mock service methods with automatic cleanup         | `useMock(EmailService, {sendEmail: () => Promise.resolve()})` |
-| `useAddress`    | `(callback: (address: string) => void) => void`                          | Setup | Access the server's listening address after startup | `useAddress(addr => console.log("Server at:", addr))`         |
-| `useAppContext` | `(callback: (context: NodeBootAppView) => void) => void`                 | Setup | Access the application context for advanced setup   | `useAppContext(ctx => expect(ctx.config).toBeDefined())`      |
-| `usePactum`     | `(baseUrl?: string) => void`                                             | Setup | Enable Pactum.js integration for HTTP testing       | `usePactum()` or `usePactum("http://localhost:3001")`         |
-| `useCleanup`    | `(options: {afterAll?: () => void, afterEach?: () => void}) => void`     | Setup | Register cleanup functions for automatic execution  | `useCleanup({afterAll: () => cleanupDatabase()})`             |
-
-### Core Package Return Hooks
-
-| Hook Name       | Hook Signature                                                                                                                                    | Scope       | Description                                             | Example Usage                                                                    |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `useConfig`     | `() => Config`                                                                                                                                    | Test/Return | Access the current configuration (read-only)            | `const config = useConfig(); const port = config.getNumber("app.port");`         |
-| `useHttp`       | `(baseURL?: string) => AxiosInstance`                                                                                                             | Test/Return | Get HTTP client for API testing                         | `const {get, post} = useHttp(); await get("/api/users");`                        |
-| `useService`    | `<T>(serviceClass: new (...args: any[]) => T) => T`                                                                                               | Test/Return | Get service instances from the IoC container            | `const userService = useService(UserService);`                                   |
-| `useRepository` | `<T>(repositoryClass: new (...args: any[]) => T) => T`                                                                                            | Test/Return | Get repository instances for data layer testing         | `const userRepo = useRepository(UserRepository);`                                |
-| `useSupertest`  | `() => TestAgent`                                                                                                                                 | Test/Return | Get Supertest instance for HTTP testing with assertions | `const request = useSupertest(); await request.get("/api/users").expect(200);`   |
-| `useAppContext` | `(callback: (context: NodeBootAppView) => void) => void`                                                                                          | Test/Return | Access the application context during test execution    | `useAppContext(ctx => expect(ctx.logger).toBeDefined())`                         |
-| `useMock`       | `<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) => {restore: () => void}`                                                         | Test/Return | Mock service methods with manual restore capability     | `const {restore} = useMock(EmailService, {sendEmail: () => Promise.resolve()});` |
-| `useMetrics`    | `() => {recordMetric: (name: string, value: any) => void, startTimer: (name: string) => {end: () => number}, getMetrics: (name?: string) => any}` | Test/Return | Collect and retrieve test metrics and performance data  | `const {recordMetric, startTimer} = useMetrics(); recordMetric("apiCalls", 5);`  |
-
-### Node Test Package Return Hooks
-
-| Hook Name  | Hook Signature                                                                                | Scope       | Description                                  | Example Usage                                                                    |
-| ---------- | --------------------------------------------------------------------------------------------- | ----------- | -------------------------------------------- | -------------------------------------------------------------------------------- |
-| `useSpy`   | `<T>(serviceClass: new (...args: any[]) => T, methodName: keyof T & string) => SpiedFunction` | Test/Return | Create spies on service methods              | `const spy = useSpy(EmailService, "sendEmail"); assert.equal(spy.callCount, 1);` |
-| `useTimer` | `() => {control: () => TimeControl, tracking: () => TimeTracking}`                            | Test/Return | Control fake timers and track execution time | `const {control, tracking} = useTimer(); control().advanceTimeBy(1000);`         |
+| Hook                    | Category         | Description                                                   | Docs                                                                       |
+| ----------------------- | ---------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| useAddress              | Setup            | Access server listening address after startup                 | [AddressHook](packages/core/docs/AddressHook.md)                           |
+| useAppContext           | Setup/Test       | Access application context for advanced setup or during tests | [AppContextHook](packages/core/docs/AppContextHook.md)                     |
+| useConfig               | Setup/Test       | Override and read configuration for tests                     | [ConfigHook](packages/core/docs/ConfigHook.md)                             |
+| useEnv                  | Setup            | Set environment variables for the test session                | [EnvHook](packages/core/docs/EnvHook.md)                                   |
+| useMock                 | Setup/Test       | Mock service methods with cleanup/restore                     | [MockHook](packages/core/docs/MockHook.md)                                 |
+| useCleanup              | Setup            | Register cleanup functions for automatic execution            | [LifecycleHook](packages/core/docs/LifecycleHook.md)                       |
+| usePactum               | Setup            | Enable Pactum.js integration for HTTP testing                 | [PactumHook](packages/core/docs/PactumHook.md)                             |
+| useHttp                 | Test             | HTTP client for calling app endpoints                         | [HttpClientHook](packages/core/docs/HttpClientHook.md)                     |
+| useService              | Test             | Access services from IoC container                            | [ServiceHook](packages/core/docs/ServiceHook.md)                           |
+| useRepository           | Test             | Access repositories for persistence tests                     | [RepositoryHook](packages/core/docs/RepositoryHook.md)                     |
+| useSupertest            | Test             | Supertest agent for HTTP assertions                           | [SupertestHook](packages/core/docs/SupertestHook.md)                       |
+| useSpy                  | Test (node-test) | Create spies on service methods                               | [SpyHook](packages/core/docs/SpyHook.md)                                   |
+| useTimer                | Test (node-test) | Control fake timers and track execution time                  | [TimerHook](packages/core/docs/TimerHook.md)                               |
+| useMetrics              | Test             | Record metrics and timers; retrieve summaries                 | [MetricsHook](packages/core/docs/MetricsHook.md)                           |
+| usePerformanceBudget    | Setup/Test       | Enforce per-label performance budgets                         | [PerformanceBudgetHook](packages/core/docs/PerformanceBudgetHook.md)       |
+| useFileSystemSandbox    | Setup/Test       | Per-test real filesystem sandbox                              | [FileSystemSandboxHook](packages/core/docs/FileSystemSandboxHook.md)       |
+| useMemoryFileSystem     | Setup/Test       | In-memory filesystem replacement (memfs)                      | [MemoryFileSystemHook](packages/core/docs/MemoryFileSystemHook.md)         |
+| useLogCapture           | Setup/Test       | Capture logs for assertion and diagnostics                    | [LogCaptureHook](packages/core/docs/LogCaptureHook.md)                     |
+| useLogMatch             | Setup/Test       | Declarative log pattern expectations/forbids                  | [LogMatchHook](packages/core/docs/LogMatchHook.md)                         |
+| useLoggerHook           | Test             | Access the shared Winston logger in tests                     | [LoggerHook](packages/core/docs/LoggerHook.md)                             |
+| useLifecycle            | Setup            | Unified lifecycle management (before/after)                   | [LifecycleHook](packages/core/docs/LifecycleHook.md)                       |
+| useMongoContainer       | Setup/Test       | Real MongoDB via Docker                                       | [MongoContainerHook](packages/core/docs/MongoContainerHook.md)             |
+| useMongoMemoryServer    | Setup/Test       | In-memory single MongoDB instance                             | [MongoMemoryServerHook](packages/core/docs/MongoMemoryServerHook.md)       |
+| useMongoMemoryReplSet   | Setup/Test       | In-memory MongoDB replica set (transactions/change streams)   | [MongoMemoryReplSetHook](packages/core/docs/MongoMemoryReplSetHook.md)     |
+| useGenericContainer     | Setup/Test       | Declarative Docker containers via Testcontainers              | [GenericContainerHook](packages/core/docs/GenericContainerHook.md)         |
+| useGenericContainerRaw  | Setup/Test       | Raw factory-based Testcontainers control                      | [GenericContainerRawHook](packages/core/docs/GenericContainerRawHook.md)   |
+| useToxiproxy            | Setup/Test       | Network toxicity simulation                                   | [ToxiproxyHook](packages/core/docs/ToxiproxyHook.md)                       |
+| useSnapshotState        | Setup/Test       | Detect unintended shared state mutations                      | [SnapshotStateHook](packages/core/docs/SnapshotStateHook.md)               |
+| useResourceLeakDetector | Setup/Test       | Detect lingering resources/handles across tests               | [ResourceLeakDetectorHook](packages/core/docs/ResourceLeakDetectorHook.md) |
+| useHttpClient           | Test             | HTTP client (alias where applicable)                          | [HttpClientHook](packages/core/docs/HttpClientHook.md)                     |
 
 ### Hook Scope Legend
 

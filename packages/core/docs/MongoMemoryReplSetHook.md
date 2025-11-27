@@ -424,10 +424,11 @@ export type MongoMemoryReplSetOpts = {
 ## Return Type
 
 ```typescript
-{
-    mongoUri: string;              // Connection string with replica set
-    replSet: MongoMemoryReplSet;   // Replica Set instance
-    servers: MongoMemoryServer[];  // Array of individual server instances
+// Replica set hook return shape (illustrative)
+interface MongoMemoryReplSetHookReturn {
+    mongoUri: string; // Connection string with replica set
+    replSet: MongoMemoryReplSet; // Replica Set instance
+    servers: MongoMemoryServer[]; // Array of individual server instances
 }
 ```
 
@@ -501,6 +502,121 @@ useMongoMemoryReplSet({
     },
 });
 ```
+
+## Extended Purpose
+
+Enable testing of advanced MongoDB semantics (multi-document transactions, change streams, leader election behavior, write concerns) without Docker by emulating a multi-member replica set entirely in memory.
+
+## Additional Usage Examples
+
+### Change Stream Test
+
+```typescript
+import {describe, it} from "node:test";
+import assert from "node:assert/strict";
+import {useNodeBoot} from "@nodeboot/node-test";
+import {EmptyApp} from "../src/empty-app";
+
+describe("MongoMemoryReplSetHook - Change Stream", () => {
+    const {useMongoMemoryReplSet} = useNodeBoot(EmptyApp, ({useMongoMemoryReplSet}) => {
+        useMongoMemoryReplSet({replSet: {count: 3, dbName: "cs-test"}});
+    });
+
+    it("captures inserted document via change stream", async () => {
+        const {mongoUri} = useMongoMemoryReplSet();
+        const {MongoClient} = await import("mongodb");
+        const client = new MongoClient(mongoUri);
+        await client.connect();
+        const col = client.db().collection("items");
+
+        const changes: any[] = [];
+        const stream = col.watch();
+        stream.on("change", ev => changes.push(ev));
+
+        await col.insertOne({name: "alpha"});
+        await new Promise(r => setTimeout(r, 50));
+        assert.ok(changes.length >= 1);
+        stream.close();
+        await client.close();
+    });
+});
+```
+
+### Transaction Rollback Example
+
+```typescript
+it("rolls back on error", async () => {
+    const {mongoUri} = useMongoMemoryReplSet();
+    const {MongoClient} = await import("mongodb");
+    const client = new MongoClient(mongoUri);
+    await client.connect();
+    const session = client.startSession();
+    const col = client.db().collection("tx");
+    session.startTransaction();
+    try {
+        await col.insertOne({k: 1}, {session});
+        throw new Error("abort");
+    } catch {
+        await session.abortTransaction();
+    } finally {
+        await session.endSession();
+    }
+    const count = await col.countDocuments();
+    assert.strictEqual(count, 0);
+    await client.close();
+});
+```
+
+## Advanced Usage
+
+-   **Failover Simulation**: Manually stop one server (`servers[i].stop()`) then issue operations to observe election delay.
+-   **Custom Member Configuration**: Use `instanceOpts` to assign ports/storage engines per member.
+-   **Election Timing**: Adjust `configSettings.electionTimeoutMillis` to test resilience of your retry logic.
+
+## Integration Patterns
+
+| Need                | Pattern                                                                        |
+| ------------------- | ------------------------------------------------------------------------------ |
+| Transaction tests   | Use 3+ members; start session + transactions on repositories.                  |
+| Change streams      | Start stream before writes; small delay for event emission.                    |
+| Failover handling   | Stop a member during operation; observe re-election & retry.                   |
+| Performance metrics | Combine with `PerformanceBudgetHook` labeling startup & transaction durations. |
+
+## Edge Cases
+
+| Scenario              | Consideration                                        |
+| --------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| Slow election         | High `electionTimeoutMillis` or insufficient members | Reduce timeout or increase `count`.                   |
+| Port conflicts        | Explicit port collisions in `instanceOpts`           | Remove explicit ports to auto-assign.                 |
+| Auth misconfiguration | Partial `auth` object                                | Provide full `auth` or disable.                       |
+| Change stream empty   | Insert too early / stream not ready                  | Add slight delay or ensure stream open before writes. |
+
+## Troubleshooting Enhancements
+
+| Symptom                   | Cause                              | Fix                                                  |
+| ------------------------- | ---------------------------------- | ---------------------------------------------------- |
+| Transactions failing      | Not enough members                 | Set `count >= 3`.                                    |
+| Replica set start timeout | Binary download or slow host       | Pin version & use cached `downloadDir`.              |
+| Change stream never fires | Stream closed or replica not ready | Wait for readiness (~few seconds) before operations. |
+| OOM / memory spikes       | Large dataset inserted             | Use MongoContainerHook for heavy persistence.        |
+
+## Performance Tips
+
+-   Keep member count minimal (3) unless testing larger topologies.
+-   Pin MongoDB versions for deterministic behavior.
+-   Reuse binary downloads across CI jobs with shared `downloadDir`.
+
+## Comparison Summary
+
+| MongoMemoryServerHook | MongoMemoryReplSetHook           | MongoContainerHook        |
+| --------------------- | -------------------------------- | ------------------------- |
+| Single node           | Multi-node in-memory             | Real engine via Docker    |
+| Fast CRUD             | Transactions & streams           | Full production features  |
+| No replica semantics  | Election, replication simulation | Real persistence & config |
+
+## Summary
+
+MongoMemoryReplSetHook enables advanced MongoDB feature testing with minimal overhead; use container-based setup for production fidelity or heavy data, and single memory server for basic CRUD speed.
 
 ## See Also
 

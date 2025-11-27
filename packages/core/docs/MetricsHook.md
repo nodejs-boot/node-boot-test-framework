@@ -1,1077 +1,122 @@
 # MetricsHook
 
-Collects and reports custom metrics plus per-test durations.
+Collect custom metrics and per-test durations during test execution. Useful for profiling critical operations, tracking API call counts, query timings, and computing summary statistics at the end of the suite.
 
-## Automatic Metrics
+## Features
 
--   `testDuration`: ms elapsed for each test.
+-   Automatic per-test duration metric (`testDuration`)
+-   Record arbitrary numeric/string metrics via `recordMetric`
+-   Timers for operation measurement via `startTimer`
+-   Retrieve specific or all metrics with `getMetrics`
+-   Summary reporting after tests (avg/min/max/count for numeric series)
 
-## Custom Metrics
+## Setup / Activation (node:test + useNodeBoot)
 
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
+```typescript
+import {describe, it} from "node:test";
+import assert from "node:assert/strict";
+import {useNodeBoot} from "@nodeboot/node-test";
+import {EmptyApp} from "../src/empty-app";
+
+describe("MetricsHook - Basic Usage", () => {
+    const {useMetrics} = useNodeBoot(EmptyApp, () => {
+        // Metrics available without explicit registration
+    });
+
+    it("records custom metrics", () => {
+        const {recordMetric, getMetrics} = useMetrics();
+        recordMetric("apiCalls", 3);
+        recordMetric("apiCalls", 5);
+        recordMetric("apiCalls", 2);
+
+        const metrics = getMetrics("apiCalls");
+        assert.deepStrictEqual(metrics, [3, 5, 2]);
+    });
 });
+```
 
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
+## Using Timers
+
+```typescript
+import {describe, it} from "node:test";
+import assert from "node:assert/strict";
+import {useNodeBoot} from "@nodeboot/node-test";
+import {EmptyApp} from "../src/empty-app";
+
+describe("MetricsHook - Timers", () => {
+    const {useMetrics} = useNodeBoot(EmptyApp, () => {});
+
+    it("measures operation duration", () => {
+        const {startTimer, getMetrics} = useMetrics();
+        const t = startTimer("dbQuery");
+        // simulate work
+        let sum = 0;
+        for (let i = 0; i < 1_000_0; i++) sum += i;
+        const elapsed = t.end();
+        assert.ok(elapsed > 0);
+        assert.strictEqual(getMetrics("dbQuery")[0], elapsed);
+    });
+});
+```
+
+## Naming Conventions
+
+```typescript
+it("hierarchical names", () => {
+    const {recordMetric, getMetrics} = useMetrics();
+    recordMetric("api.users.create", 150);
+    recordMetric("db.users.select", 75);
+    recordMetric("cache.users.get", 5);
     const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
+    assert.ok(all["api.users.create"]);
+    assert.ok(all["db.users.select"]);
+    assert.ok(all["cache.users.get"]);
 });
+```
+
+## Reporting
+
+After tests complete, a summary is logged for numeric metrics:
+
+Format: `metricName: avg=12.34ms, min=10ms, max=15ms, count=5`
+
+Example:
+
+```
+Metrics Summary:
+  api.users.create: avg=150ms, min=120ms, max=180ms, count=10
+  db.query.time:    avg=75ms,  min=50ms,  max=100ms, count=25
+  testDuration:     avg=250ms, min=100ms, max=500ms, count=15
 ```
 
 ## API
 
 `useMetrics()` returns:
 
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
+-   `recordMetric(name: string, value: number | string): void` — append value under `name`
+-   `getMetrics(name?: string): any` — array for `name`, or object of all metrics
+-   `startTimer(name: string): { end(): number }` — measure duration and auto-record under `name`
 
 ## Best Practices
 
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
+-   Use consistent hierarchical naming (`layer.entity.operation`)
+-   Prefer numeric values for aggregations (avg/min/max)
+-   Use timers for durations rather than manual `Date.now()`
+-   Keep metrics granular and focused to aid analysis
+-   Combine with PerformanceBudgetHook for enforcement
 
 ## Troubleshooting
 
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
+**Averages show NaN**
 
-# MetricsHook
+-   Ensure values are numeric; avoid mixing types within a single metric name
 
-Collects and reports custom metrics plus per-test durations.
+**Metrics missing**
 
-## Automatic Metrics
+-   Verify `recordMetric` and `startTimer().end()` are called
+-   Check name spelling; `getMetrics("name")` returns an array only if recorded
 
--   `testDuration`: ms elapsed for each test.
+**Timer values unexpected**
 
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
-
-# MetricsHook
-
-Collects and reports custom metrics plus per-test durations.
-
-## Automatic Metrics
-
--   `testDuration`: ms elapsed for each test.
-
-## Custom Metrics
-
-```ts
-const {useMetrics} = useNodeBoot(MyApp, ({useMetrics}) => {
-    /* no registration needed */
-});
-
-test("records metrics", () => {
-    const {recordMetric, startTimer, getMetrics} = useMetrics();
-    recordMetric("apiCalls", 3);
-    const timer = startTimer("dbRead");
-    // ... do work
-    const ms = timer.end();
-    expect(ms).toBeGreaterThan(0);
-    const all = getMetrics();
-    expect(all.apiCalls).toContain(3);
-});
-```
-
-## API
-
-`useMetrics()` returns:
-
--   `recordMetric(name, value)` append value.
--   `getMetrics(name?)` array for name or object of all metrics.
--   `startTimer(name)` returns `{ end(): number }` measuring duration & auto-recording under `name`.
-
-## Reporting
-
-After all tests a summary logs averages for numeric series.
-Format: `metricName: avg=12.34ms, min=10ms, max=15ms`.
-
-## Best Practices
-
--   Use consistent metric naming (`layer.operation`).
--   Record numeric data for aggregations; non-numeric values stored but not summarized meaningfully.
-
-## Troubleshooting
-
-If averages look NaN ensure values are numeric; avoid mixing types in same metric.
+-   Call `end()` exactly once per measurement
+-   Avoid reusing a timer object; create a new one per operation

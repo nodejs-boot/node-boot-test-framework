@@ -1,5 +1,11 @@
 # @nodeboot/test
 
+## 2.14.0
+
+### Minor Changes
+
+-   Add LoggerHook
+
 ## 2.13.0
 
 ### Minor Changes

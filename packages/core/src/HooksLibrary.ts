@@ -28,6 +28,7 @@ import {
     SupertestHook,
     TimerHook,
     ToxiproxyHook,
+    LoggerHook,
 } from "./hooks";
 
 export type SetUpHooks = {
@@ -78,6 +79,7 @@ export type ReturnHooks = {
     useApplicationEvent: ApplicationEventHook["use"];
     useIocContainer: IocContainerHook["use"];
     useToxiproxy: ToxiproxyHook["use"];
+    useLogger: LoggerHook["use"];
 };
 
 export class HooksLibrary {
@@ -109,6 +111,7 @@ export class HooksLibrary {
     applicationEventHook = new ApplicationEventHook();
     iocContainerHook = new IocContainerHook();
     toxiproxyHook = new ToxiproxyHook();
+    loggerHook = new LoggerHook();
 
     registerHooks(hookManager: HookManager) {
         hookManager.addHook(this.appContextHook);
@@ -139,6 +142,7 @@ export class HooksLibrary {
         hookManager.addHook(this.applicationEventHook);
         hookManager.addHook(this.iocContainerHook);
         hookManager.addHook(this.toxiproxyHook);
+        hookManager.addHook(this.loggerHook);
     }
 
     getSetupHooks(): SetUpHooks {
@@ -192,6 +196,7 @@ export class HooksLibrary {
             useIocContainer: this.iocContainerHook.use.bind(this.iocContainerHook),
             useApplicationEvent: this.applicationEventHook.use.bind(this.applicationEventHook),
             useToxiproxy: this.toxiproxyHook.use.bind(this.toxiproxyHook),
+            useLogger: this.loggerHook.use.bind(this.loggerHook),
         };
     }
 }

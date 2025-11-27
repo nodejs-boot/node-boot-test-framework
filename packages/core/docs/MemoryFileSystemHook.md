@@ -2,6 +2,10 @@
 
 Replaces Node's `fs` module with an in-memory `memfs` implementation for fast, isolated file operations during tests.
 
+## Purpose
+
+Provides an in-memory replacement for Node's `fs` enabling ultra-fast, isolated file operations for tests without touching disk. Ideal for fixtures, transformation pipelines, and heavy ephemeral I/O scenarios.
+
 ## Features
 
 -   In-memory file system seeded with optional initial files.
@@ -9,82 +13,122 @@ Replaces Node's `fs` module with an in-memory `memfs` implementation for fast, i
 -   Optional mirroring of write operations to the real filesystem for debugging or artifact generation.
 -   Supports both callback and promises `fs` APIs.
 
-## Configuration
+## Setup
 
-```ts
-useMemoryFileSystem({
-    files: {"config/app.json": '{"ok":true}'}, // seed files
-    resetEachTest: true, // default true
-    mirrorToRealFs: false, // also apply writes to real disk
+Register in `useNodeBoot` setup callback. Patch must occur early before application or libraries import and capture the original `fs`.
+
+```typescript
+import {describe, it} from "node:test";
+import assert from "node:assert/strict";
+import {useNodeBoot} from "@nodeboot/node-test";
+import {EmptyApp} from "../src/empty-app";
+
+describe("MemoryFileSystemHook - Basic", () => {
+    const {useMemoryFileSystem} = useNodeBoot(EmptyApp, ({useMemoryFileSystem}) => {
+        useMemoryFileSystem({files: {"config/app.json": '{"ok":true}'}});
+    });
+
+    it("reads seeded file", () => {
+        const {fs} = useMemoryFileSystem();
+        const raw = fs.readFileSync("config/app.json", "utf8");
+        assert.ok(raw.includes("ok"));
+    });
 });
 ```
 
-## Usage
+## Basic Usage
 
-```ts
-const {fs, seed, toJSON, reset, realFs} = useMemoryFileSystem();
-fs.writeFileSync("tmp/data.txt", "hello");
-expect(fs.readFileSync("tmp/data.txt", "utf8")).toBe("hello");
-
-// Add more seed files mid-suite
-seed({"extra/info.txt": "42"});
-
-// Inspect full volume
-console.log(toJSON());
+```typescript
+it("writes & reads file", () => {
+    const {fs} = useMemoryFileSystem();
+    fs.writeFileSync("tmp/data.txt", "hello");
+    assert.strictEqual(fs.readFileSync("tmp/data.txt", "utf8"), "hello");
+});
 ```
 
-## Mirroring Writes
+## Configuration Examples
 
-Enable `mirrorToRealFs` to duplicate write operations to the underlying real `fs` module (helpful for debugging artifacts):
+```typescript
+useMemoryFileSystem({
+    files: {"fixtures/user.json": '{"id":1}'},
+    resetEachTest: true, // full reset between tests
+    mirrorToRealFs: false, // set true to also write to disk
+});
 
-```ts
+// Mid-suite enabling mirroring (re-registration merges/overrides):
 useMemoryFileSystem({mirrorToRealFs: true});
 ```
 
-Writes (e.g., `writeFileSync`, `appendFileSync`, `mkdirSync`) are first applied in-memory, then attempted on real disk. Errors in real-disk mirroring are swallowed to avoid test flakiness.
+## Advanced Usage
 
-## Lifecycle
+-   **Mid-test Reset**: `reset()` to clear volume and reapply initial seed.
+-   **Dynamic Seeding**: `seed({...})` to add new test data without reset.
+-   **Binary Handling**: Use Buffers; memfs supports standard Node APIs.
+-   **Selective Mirroring**: Mirror only when debugging failing tests.
 
--   beforeStart / beforeTests: patches global `fs` early.
--   beforeEachTest: resets volume if `resetEachTest`.
--   afterTests: restores original `fs` implementation.
-
-## API
-
-`useMemoryFileSystem()` returns:
-
--   `fs`: memfs replacement (drop-in for Node `fs`).
--   `volume`: underlying `Volume` instance.
--   `seed(files)`: add or overwrite files.
--   `toJSON()`: snapshot of current file tree.
--   `restore()`: manually restore original `fs` early.
--   `realFs()`: access original Node `fs` implementation.
--   `reset()`: manually reset volume (reapplies initial seed files if configured).
-
-## Example: JSON Fixture Isolation
-
-```ts
-useMemoryFileSystem({files: {"fixtures/user.json": '{"id":1}'}});
-
-test("reads fixture", () => {
-    const {fs} = useMemoryFileSystem();
-    const user = JSON.parse(fs.readFileSync("fixtures/user.json", "utf8"));
-    expect(user.id).toBe(1);
+```typescript
+it("dynamic seeding & reset", () => {
+    const {fs, seed, reset, toJSON} = useMemoryFileSystem();
+    seed({"a.txt": "A"});
+    assert.ok(fs.existsSync("a.txt"));
+    reset(); // a.txt removed (reverts to original seed set)
+    console.log(toJSON());
 });
 ```
 
+## Integration Patterns
+
+| Hook                  | Pattern                                                       |
+| --------------------- | ------------------------------------------------------------- |
+| SnapshotStateHook     | Capture file counts before/after to detect unintended writes. |
+| PerformanceBudgetHook | Measure transform pipeline duration with memory I/O.          |
+| FileSystemSandboxHook | Compare performance vs real filesystem operations.            |
+
+## Extended API
+
+`useMemoryFileSystem()` returns:
+
+| Member        | Description                                   |
+| ------------- | --------------------------------------------- |
+| `fs`          | memfs implementation (drop-in for Node `fs`). |
+| `volume`      | Underlying `Volume` instance.                 |
+| `seed(files)` | Add or overwrite files.                       |
+| `toJSON()`    | Snapshot object of current volume.            |
+| `restore()`   | Restore original `fs` early (manual unpatch). |
+| `realFs()`    | Access original Node `fs` reference.          |
+| `reset()`     | Clear volume & reapply initial seed.          |
+
+## Edge Cases
+
+-   **Module Preload**: Libraries imported before patch may retain original `fs`; ensure early hook registration.
+-   **Mirroring Failures**: Real filesystem write errors are swallowed—debug by temporarily asserting existence on real path.
+-   **Large Trees**: Extremely large seed sets slow startup; prefer minimal seeds.
+-   **Mixed Paths**: Absolute paths may bypass volume logic—use relative paths inside tests.
+
 ## Best Practices
 
--   Use relative paths; avoid absolute OS paths for portability.
--   Keep seed files minimal to reduce test startup time.
--   Prefer `resetEachTest: true` for strong isolation; disable only for intentional cross-test reuse.
-
-## Compare With FileSystemSandboxHook
-
--   MemoryFileSystemHook: faster; no actual disk IO; good for heavy read/write tests.
--   FileSystemSandboxHook: real filesystem semantics (useful when code relies on OS features not emulated by memfs).
+-   Keep seed minimal & explicit.
+-   Prefer `resetEachTest: true` for isolation.
+-   Use `mirrorToRealFs` sparingly to avoid slowing tests.
+-   Log `toJSON()` only for debugging (avoid noise in CI).
 
 ## Troubleshooting
 
--   If a module imported before patch captures `fs` reference internally, ensure MemoryFileSystemHook runs with very early priority (already set to -30) or import after hook setup.
--   Missing seed files each test? Confirm `resetEachTest` is true and `files` provided.
+| Symptom                       | Cause                               | Resolution                                     |
+| ----------------------------- | ----------------------------------- | ---------------------------------------------- |
+| File missing after test start | Forgot to seed / reset removed file | Use `seed()` or verify initial `files` config. |
+| Changes persist across tests  | `resetEachTest` disabled            | Enable or call `reset()` manually.             |
+| Real disk not updated         | `mirrorToRealFs` false              | Enable mirroring; confirm path permissions.    |
+| Binary corruption             | Incorrect encoding usage            | Use Buffers instead of strings where needed.   |
+
+## Comparison vs FileSystemSandboxHook
+
+| MemoryFileSystemHook | FileSystemSandboxHook           |
+| -------------------- | ------------------------------- |
+| In-memory only       | Real disk semantics             |
+| Faster heavy I/O     | Closer to production filesystem |
+| Perfect isolation    | Tests actual OS limitations     |
+
+## Summary
+
+MemoryFileSystemHook accelerates filesystem-heavy tests with clean isolation; leverage SnapshotStateHook or PerformanceBudgetHook for higher-level validation.
