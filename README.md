@@ -538,10 +538,10 @@ test("should handle async operations", async () => {
 1. **Service Not Found Error**
 
     ```
-    Error: The class MyService is not decorated with @Service
+    Error: Could not resolve MyService from the IOC Container.
     ```
 
-    Ensure your service classes are properly decorated with `@Service()`.
+    Ensure the class is decorated with `@Service()` or `@Component()` and is included in the application's component scan.
 
 2. **IoC Container Not Found**
 

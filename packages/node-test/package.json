@@ -29,8 +29,6 @@
         "typecheck": "tsc"
     },
     "dependencies": {
-        "@nodeboot/context": "^2.2.1",
-        "@nodeboot/core": "^1.16.2",
         "@nodeboot/test": "workspace:^",
         "@sinonjs/fake-timers": "^11.3.1"
     },
@@ -39,5 +37,11 @@
         "package.json",
         "README.md",
         "config.d.ts"
-    ]
+    ],
+    "peerDependencies": {
+        "@nodeboot/core": ">=1.16.0 <2"
+    },
+    "devDependencies": {
+        "@nodeboot/core": "^1.16.2"
+    }
 }

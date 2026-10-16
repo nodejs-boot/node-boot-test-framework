@@ -130,10 +130,10 @@ importers:
         version: 2.4.7(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/starter-persistence':
         specifier: ^1.13.4
-        version: 1.13.4(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)
+        version: 1.13.4(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)
       better-sqlite3:
-        specifier: ^9.6.0
-        version: 9.6.0
+        specifier: ^12.4.1
+        version: 12.11.1
       body-parser:
         specifier: ^1.20.2
         version: 1.20.3
@@ -178,7 +178,7 @@ importers:
         version: 0.10.0
       typeorm:
         specifier: 0.3.27
-        version: 0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
+        version: 0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
       winston:
         specifier: ^3.10.0
         version: 3.18.3
@@ -216,6 +216,13 @@ importers:
 
   packages/core:
     dependencies:
+      '@sinonjs/fake-timers':
+        specifier: ^11.2.2
+        version: 11.3.1
+      winston:
+        specifier: ^3.10.0
+        version: 3.18.3
+    devDependencies:
       '@nodeboot/config':
         specifier: ^1.3.6
         version: 1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
@@ -225,53 +232,43 @@ importers:
       '@nodeboot/core':
         specifier: ^1.16.2
         version: 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@sinonjs/fake-timers':
-        specifier: ^11.2.2
-        version: 11.3.1
-      testcontainers:
-        specifier: ^11.7.2
-        version: 11.7.2
-      winston:
-        specifier: ^3.10.0
-        version: 3.18.3
-    devDependencies:
       '@testcontainers/toxiproxy':
         specifier: ^11.8.1
         version: 11.8.1
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.3
-      mongodb-memory-server:
-        specifier: ^8.16.1
-        version: 8.16.1
-    optionalDependencies:
       axios:
         specifier: ^1.7.9
         version: 1.12.2
+      mongodb-memory-server:
+        specifier: ^8.16.1
+        version: 8.16.1
       pactum:
         specifier: ^3.7.6
         version: 3.8.0
       supertest:
         specifier: ^7.0.0
         version: 7.1.4
+      testcontainers:
+        specifier: ^11.7.2
+        version: 11.7.2
       typeorm:
         specifier: 0.3.27
-        version: 0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4))
+        version: 0.3.27(better-sqlite3@12.11.1)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
 
   packages/node-test:
     dependencies:
-      '@nodeboot/context':
-        specifier: ^2.2.1
-        version: 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
-      '@nodeboot/core':
-        specifier: ^1.16.2
-        version: 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/test':
         specifier: workspace:^
         version: link:../core
       '@sinonjs/fake-timers':
         specifier: ^11.3.1
         version: 11.3.1
+    devDependencies:
+      '@nodeboot/core':
+        specifier: ^1.16.2
+        version: 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
 
 packages:
 
@@ -919,6 +916,7 @@ packages:
   '@koa/router@14.0.0':
     resolution: {integrity: sha512-LBSu5K0qAaaQcXX/0WIB9PGDevyCxxpnc1uq13vV/CgObaVxuis5hKl3Eboq/8gcb6ebnkAStW9NB/Em2eYyFA==}
     engines: {node: '>= 20'}
+    deprecated: Please upgrade to v15 or higher. All reported bugs in this version are fixed in newer releases, dependencies have been updated, and security has been improved.
 
   '@lukeed/ms@2.0.2':
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
@@ -2013,8 +2011,9 @@ packages:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
 
-  better-sqlite3@9.6.0:
-    resolution: {integrity: sha512-yR5HATnqeYNVnkaUTf4bOP2dJSnyhP4puJN/QPRyx4YkBEEUxib422n2XzPqDEHjQQqazoYoADdAm5vE15+dAQ==}
+  better-sqlite3@12.11.1:
+    resolution: {integrity: sha512-dq9AtApgg5PGFtBzPFSBl3HZQjHok5gaQCM6zh2Yk0aSmDCs1CbnVI8/HgASQkNKsWFpseIO9beg5xxpYhbIfA==}
+    engines: {node: 20.x || 22.x || 23.x || 24.x || 25.x || 26.x}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -5223,6 +5222,7 @@ packages:
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
     engines: {node: '>=10'}
+    deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
     hasBin: true
 
   prelude-ls@1.1.2:
@@ -8284,15 +8284,15 @@ snapshots:
       - supports-color
       - winston
 
-  '@nodeboot/starter-persistence@1.13.4(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)':
+  '@nodeboot/starter-persistence@1.13.4(@aws-sdk/credential-providers@3.921.0)(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(typeorm@0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))(winston@3.18.3)':
     dependencies:
       '@nodeboot/config': 1.3.6(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/context': 2.2.1(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/core': 1.16.2(@swc/core@1.13.5)(class-transformer@0.5.1)(class-validator@0.14.2)(winston@3.18.3)
       '@nodeboot/di': 1.4.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(winston@3.18.3)
       reflect-metadata: 0.2.2
-      typeorm: 0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
-      typeorm-transactional: 0.5.0(reflect-metadata@0.2.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))
+      typeorm: 0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
+      typeorm-transactional: 0.5.0(reflect-metadata@0.2.2)(typeorm@0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)))
       winston: 3.18.3
     optionalDependencies:
       mongodb: 5.9.2(@aws-sdk/credential-providers@3.921.0)
@@ -9401,7 +9401,6 @@ snapshots:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
-    optional: true
 
   axios@1.13.1:
     dependencies:
@@ -9519,7 +9518,7 @@ snapshots:
     dependencies:
       is-windows: 1.0.2
 
-  better-sqlite3@9.6.0:
+  better-sqlite3@12.11.1:
     dependencies:
       bindings: 1.5.0
       prebuild-install: 7.1.3
@@ -14777,15 +14776,15 @@ snapshots:
 
   typedi@0.10.0: {}
 
-  typeorm-transactional@0.5.0(reflect-metadata@0.2.2)(typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))):
+  typeorm-transactional@0.5.0(reflect-metadata@0.2.2)(typeorm@0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))):
     dependencies:
       '@types/cls-hooked': 4.3.9
       cls-hooked: 4.2.2
       reflect-metadata: 0.2.2
       semver: 7.7.3
-      typeorm: 0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
+      typeorm: 0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3))
 
-  typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)):
+  typeorm@0.3.27(better-sqlite3@12.11.1)(mongodb@5.9.2(@aws-sdk/credential-providers@3.921.0))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 3.17.0
@@ -14803,14 +14802,14 @@ snapshots:
       uuid: 11.1.0
       yargs: 17.7.2
     optionalDependencies:
-      better-sqlite3: 9.6.0
+      better-sqlite3: 12.11.1
       mongodb: 5.9.2(@aws-sdk/credential-providers@3.921.0)
       ts-node: 10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
 
-  typeorm@0.3.27(better-sqlite3@9.6.0)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4)):
+  typeorm@0.3.27(better-sqlite3@12.11.1)(mongodb@6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7))(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 3.17.0
@@ -14828,13 +14827,12 @@ snapshots:
       uuid: 11.1.0
       yargs: 17.7.2
     optionalDependencies:
-      better-sqlite3: 9.6.0
+      better-sqlite3: 12.11.1
       mongodb: 6.20.0(@aws-sdk/credential-providers@3.921.0)(socks@2.8.7)
-      ts-node: 10.9.2(@swc/core@1.13.5)(@types/node@18.19.130)(typescript@5.5.4)
+      ts-node: 10.9.2(@swc/core@1.13.5)(@types/node@24.9.2)(typescript@5.9.3)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
-    optional: true
 
   typescript-json-schema@0.65.1(@swc/core@1.13.5):
     dependencies:

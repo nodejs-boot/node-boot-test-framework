@@ -1,7 +1,12 @@
-import pactum from "pactum";
-import {NodeBootAppView} from "@nodeboot/core";
+import type {NodeBootAppView} from "@nodeboot/core";
 import {Hook} from "./Hook";
 import {useLogger} from "../utils/useLogger";
+import {requireOptional} from "../utils/optional-dependency";
+
+const loadPactum = () => {
+    const pactum = requireOptional("pactum", "usePactum");
+    return pactum.default ?? pactum;
+};
 
 /**
  * The `PactumHook` class integrates Pactum's HTTP testing features with NodeBoot.
@@ -14,6 +19,8 @@ export class PactumHook extends Hook {
      * @param bootApp The NodeBoot application instance.
      */
     override afterStart(bootApp: NodeBootAppView): void {
+        if (!this.getState<boolean>("pactum-enabled")) return;
+        const pactum = loadPactum();
         const address = this.getState<string>("baseUrl") ?? `http://localhost:${bootApp.appOptions.port}`;
         pactum.request.setBaseUrl(address);
         pactum.request.setDefaultTimeout(15000);
@@ -24,12 +31,15 @@ export class PactumHook extends Hook {
      * Resets Pactum configuration after tests.
      */
     override async afterTests() {
+        if (!this.getState<boolean>("pactum-enabled")) return;
+        const pactum = loadPactum();
         pactum.request.setBaseUrl(""); // Clear the base URL
         useLogger().debug("Pactum configuration has been reset after tests.");
     }
 
     call(baseUrl?: string) {
         const logger = useLogger();
+        this.setState("pactum-enabled", true);
         this.setState("baseUrl", baseUrl);
         if (baseUrl) {
             logger.debug(`Pactum hook called with baseUlr ${baseUrl}`);

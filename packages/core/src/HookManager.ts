@@ -1,7 +1,7 @@
 import {Hook} from "./hooks";
-import {NodeBootAppView} from "@nodeboot/core";
+import type {NodeBootAppView} from "@nodeboot/core";
 import {useLogger} from "./utils/useLogger";
-import {JsonObject} from "@nodeboot/context";
+import type {JsonObject} from "@nodeboot/context";
 
 export class HookManager {
     private hooks: Hook[] = [];

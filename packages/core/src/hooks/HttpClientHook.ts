@@ -1,5 +1,6 @@
-import axios, {AxiosInstance} from "axios";
-import {NodeBootAppView} from "@nodeboot/core";
+import type {AxiosInstance} from "axios";
+import {requireOptional} from "../utils/optional-dependency";
+import type {NodeBootAppView} from "@nodeboot/core";
 import {Hook} from "./Hook";
 import {useLogger} from "../utils/useLogger";
 
@@ -14,7 +15,6 @@ export class HttpClientHook extends Hook {
         // Provide the server address to the address hook
         const address = `http://localhost:${bootApp.appOptions.port}`;
         this.setState("node-boot-address", address);
-        this.setupClient(address);
     }
 
     /**
@@ -28,8 +28,8 @@ export class HttpClientHook extends Hook {
     use(baseURL?: string) {
         const serverAddress = baseURL ?? this.getState<string>("node-boot-address");
         let instance = this.clients.get(serverAddress!);
-        if (!instance && baseURL) {
-            instance = this.setupClient(baseURL);
+        if (!instance && serverAddress) {
+            instance = this.setupClient(serverAddress);
         }
 
         if (!instance) {
@@ -50,7 +50,8 @@ export class HttpClientHook extends Hook {
         let client = this.clients.get(baseURL);
         if (!client) {
             // If not found, create a new client
-            client = axios.create({
+            const axios = requireOptional("axios", "useHttp");
+            client = ((axios.default ?? axios) as typeof import("axios").default).create({
                 baseURL: baseURL,
                 timeout: 15000, // Request timeout in ms
                 headers: {

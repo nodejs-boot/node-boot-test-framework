@@ -1,7 +1,8 @@
 import {Hook} from "./Hook";
-import {JsonObject} from "@nodeboot/context";
+import type {JsonObject} from "@nodeboot/context";
 import {useLogger} from "../utils/useLogger";
-import {MongoMemoryServer} from "mongodb-memory-server";
+import type {MongoMemoryServer} from "mongodb-memory-server";
+import {requireOptional} from "../utils/optional-dependency";
 
 type UserRoles = string | {role: string; db: string};
 
@@ -79,6 +80,10 @@ export class MongoMemoryServerHook extends Hook {
         const dbName = opts.instance?.dbName ?? "testdb";
 
         logger.info("[MongoMemoryServerHook] Starting MongoDB Memory Server...");
+        const {MongoMemoryServer} = requireOptional<typeof import("mongodb-memory-server")>(
+            "mongodb-memory-server",
+            "useMongoMemoryServer",
+        );
         this.server = await MongoMemoryServer.create(opts as any);
 
         this.uri = this.server.getUri();

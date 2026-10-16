@@ -1,5 +1,5 @@
 import {Hook} from "./Hook";
-import {NodeBootAppView} from "@nodeboot/core";
+import type {NodeBootAppView} from "@nodeboot/core";
 
 export class AppContextHook extends Hook {
     private consumers: ((appContext: NodeBootAppView) => void)[] = [];

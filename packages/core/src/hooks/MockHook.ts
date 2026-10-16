@@ -1,5 +1,5 @@
 import {Hook} from "./Hook";
-import {ApplicationContext} from "@nodeboot/context";
+import {getIocContainer} from "../utils/nodeboot";
 
 /**
  * A hook for mocking services in a test environment. This class provides
@@ -32,7 +32,7 @@ export class MockHook extends Hook {
      * @returns An object containing a restore function to revert the mock.
      */
     use<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) {
-        const iocContainer = ApplicationContext.getIocContainer();
+        const iocContainer = getIocContainer();
         const originalInstance = iocContainer?.get(serviceClass);
         if (!iocContainer) throw new Error("IoC container not found.");
         if (!originalInstance) throw new Error(`Service instance for ${serviceClass.name} not found.`);
@@ -83,7 +83,7 @@ export class MockHook extends Hook {
      * @param mock - A partial implementation of the service.
      */
     call<T>(serviceClass: new (...args: any[]) => T, mock: Partial<T>) {
-        const iocContainer = ApplicationContext.getIocContainer();
+        const iocContainer = getIocContainer();
 
         if (!iocContainer) {
             throw new Error("IoC container not found.");

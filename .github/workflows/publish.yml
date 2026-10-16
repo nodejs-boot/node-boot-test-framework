@@ -1,0 +1,61 @@
+name: Publish Package
+
+on:
+    # Triggered by the Release workflow (workflow_dispatch) and by manually published GitHub releases.
+    workflow_dispatch:
+    release:
+        types: [published]
+
+permissions:
+    id-token: write
+    contents: read
+
+concurrency:
+    group: publish
+    cancel-in-progress: false
+
+jobs:
+    test:
+        uses: ./.github/workflows/test.yml
+
+    publish:
+        needs: test
+        runs-on: ubuntu-latest
+        environment:
+            name: release
+        env:
+            NPM_CONFIG_PROVENANCE: true
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+              with:
+                  # release tag when triggered by a release, default branch otherwise
+                  ref: ${{ github.event.release.tag_name || github.ref }}
+
+            - uses: pnpm/action-setup@v6
+              name: Install pnpm
+              with:
+                  run_install: false
+
+            - name: Use node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version-file: .nvmrc
+                  registry-url: https://registry.npmjs.org
+                  package-manager-cache: false
+
+            - name: Upgrade npm for OIDC
+              run: npm install -g npm@11.11.0
+
+            - name: Clear auth token for OIDC
+              run: echo "NODE_AUTH_TOKEN=" >> "$GITHUB_ENV"
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build packages
+              run: pnpm build
+
+            - name: Publish released packages
+              run: pnpm release:publish

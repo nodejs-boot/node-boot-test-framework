@@ -1,5 +1,6 @@
 import {Hook} from "./Hook";
-import {ApplicationContext, ApplicationLifecycleBridge, LifecycleType} from "@nodeboot/context";
+import type {LifecycleType} from "@nodeboot/context";
+import {getIocContainer, getLifecycleBridgeClass} from "../utils/nodeboot";
 
 export class ApplicationEventHook extends Hook {
     // This hook does not participate in setup, only exposes a test-scope utility
@@ -13,7 +14,7 @@ export class ApplicationEventHook extends Hook {
                 if (!applicationEvent) {
                     throw new Error("applicationEvent is required");
                 }
-                const applicationLifecycle = ApplicationContext.getIocContainer()?.get(ApplicationLifecycleBridge);
+                const applicationLifecycle = getIocContainer()?.get(getLifecycleBridgeClass());
                 if (!applicationLifecycle) {
                     throw new Error("ApplicationLifecycleBridge not available in IoC container");
                 }

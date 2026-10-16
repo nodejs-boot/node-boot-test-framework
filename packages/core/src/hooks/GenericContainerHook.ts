@@ -1,7 +1,8 @@
 import {Hook} from "./Hook";
-import {JsonObject} from "@nodeboot/context";
+import type {JsonObject} from "@nodeboot/context";
 import {useLogger} from "../utils/useLogger";
-import {GenericContainer, StartedTestContainer} from "testcontainers";
+import type {StartedTestContainer} from "testcontainers";
+import {requireOptional} from "../utils/optional-dependency";
 import {configureContainerRuntime, detectContainerRuntime} from "../utils/container-runtime";
 
 type ContainerOptions = {
@@ -71,6 +72,10 @@ export class GenericContainerHook extends Hook {
         configureContainerRuntime(runtimeConfig);
         logger.info(`[GenericContainerHook] Using container runtime: ${runtime}`);
 
+        const {GenericContainer} = requireOptional<typeof import("testcontainers")>(
+            "testcontainers",
+            "useGenericContainer",
+        );
         let container = new GenericContainer(options.image);
 
         // Configure the container based on options

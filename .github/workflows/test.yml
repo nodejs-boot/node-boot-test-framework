@@ -1,0 +1,98 @@
+name: Test
+on:
+    workflow_dispatch:
+    workflow_call:
+
+    push:
+        branches:
+            - main
+
+    pull_request:
+        types:
+            - opened
+            - reopened
+            - synchronize
+            - ready_for_review
+        paths:
+            - "packages/**"
+            - "demos/**"
+            - "package.json"
+            - "pnpm-lock.yaml"
+            - "pnpm-workspace.yaml"
+        branches:
+            - main
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    packages:
+        name: test (packages)
+        runs-on: ubuntu-latest
+        if: (!github.event.pull_request || github.event.pull_request.draft == false)
+        env:
+            CI: true
+            HUSKY: 0
+            NODE_OPTIONS: --max-old-space-size=4096
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+
+            - uses: pnpm/action-setup@v6
+              name: Install pnpm
+              with:
+                  run_install: false
+
+            - name: Use node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version-file: .nvmrc
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              shell: bash
+              run: pnpm install --frozen-lockfile
+
+            - name: Build packages
+              run: pnpm build
+
+            - name: Test packages
+              run: pnpm --filter "./packages/*" test
+
+    demo:
+        # Integration tests of the framework through the demo app. They need Docker (testcontainers).
+        name: test (demo integration)
+        runs-on: ubuntu-latest
+        if: (!github.event.pull_request || github.event.pull_request.draft == false)
+        env:
+            CI: true
+            HUSKY: 0
+            NODE_OPTIONS: --max-old-space-size=4096
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+
+            - uses: pnpm/action-setup@v6
+              name: Install pnpm
+              with:
+                  run_install: false
+
+            - name: Use node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version-file: .nvmrc
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              shell: bash
+              run: pnpm install --frozen-lockfile
+
+            - name: Build packages
+              run: pnpm build
+
+            - name: Test demo
+              run: pnpm --filter @nodeboot/node-test-demo test

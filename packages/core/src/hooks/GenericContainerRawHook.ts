@@ -1,7 +1,8 @@
 import {Hook} from "./Hook";
-import {JsonObject} from "@nodeboot/context";
+import type {JsonObject} from "@nodeboot/context";
 import {useLogger} from "../utils/useLogger";
-import {GenericContainer, StartedTestContainer} from "testcontainers";
+import type {GenericContainer, StartedTestContainer} from "testcontainers";
+import {requireOptional} from "../utils/optional-dependency";
 import {configureContainerRuntime, detectContainerRuntime} from "../utils/container-runtime";
 
 type ContainerFactory = () => GenericContainer | Promise<GenericContainer>;
@@ -58,6 +59,8 @@ export class GenericContainerRawHook extends Hook {
         const {runtime, config: runtimeConfig} = detectContainerRuntime();
         configureContainerRuntime(runtimeConfig);
         logger.info(`[GenericContainerRawHook] Using container runtime: ${runtime}`);
+
+        requireOptional("testcontainers", "useGenericContainerRaw");
 
         // Create container using the factory function
         const container = await factory();

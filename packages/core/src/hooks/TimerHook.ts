@@ -74,7 +74,14 @@ export class TimerHook extends Hook {
 
     use() {
         return {
-            control: () => this.timeControl!,
+            control: () => {
+                if (!this.timeControl) {
+                    throw new Error(
+                        "Timers are not faked. Call useTimer({toFake: [...]}) inside the useNodeBoot setup callback to enable fake timers.",
+                    );
+                }
+                return this.timeControl;
+            },
             tracking: () => this.startTracking(),
         };
     }

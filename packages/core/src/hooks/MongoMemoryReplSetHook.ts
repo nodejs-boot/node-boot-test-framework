@@ -1,7 +1,8 @@
 import {Hook} from "./Hook";
-import {JsonObject} from "@nodeboot/context";
+import type {JsonObject} from "@nodeboot/context";
 import {useLogger} from "../utils/useLogger";
-import {MongoMemoryReplSet} from "mongodb-memory-server";
+import type {MongoMemoryReplSet} from "mongodb-memory-server";
+import {requireOptional} from "../utils/optional-dependency";
 
 type UserRoles = string | {role: string; db: string};
 
@@ -98,6 +99,10 @@ export class MongoMemoryReplSetHook extends Hook {
         logger.info(`[MongoMemoryReplSetHook] Replica Set Name: ${replSetName}`);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const {MongoMemoryReplSet} = requireOptional<typeof import("mongodb-memory-server")>(
+            "mongodb-memory-server",
+            "useMongoMemoryReplSet",
+        );
         this.replSet = await MongoMemoryReplSet.create(opts as any);
 
         this.uri = this.replSet.getUri();

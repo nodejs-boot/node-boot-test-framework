@@ -4,7 +4,10 @@ import {useNodeBoot} from "@nodeboot/node-test";
 import {EmptyApp} from "../src/empty-app";
 
 describe("Emergency cleanup: manual trigger", () => {
-    const {useMetrics, useTimer} = useNodeBoot(EmptyApp);
+    const {useMetrics, useTimer} = useNodeBoot(EmptyApp, ({useTimer}) => {
+        // required to enable fake timers
+        useTimer({});
+    });
 
     it("records emergency cleanup metrics when triggered manually", async () => {
         // Manually trigger emergency cleanup via a scheduled timer (uses fake timers from TimerHook)

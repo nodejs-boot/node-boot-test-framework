@@ -1,5 +1,5 @@
 import winston, {Logger} from "winston";
-import {NodeBootAppView} from "@nodeboot/core";
+import type {NodeBootAppView} from "@nodeboot/core";
 
 let logger: Logger | undefined = undefined;
 

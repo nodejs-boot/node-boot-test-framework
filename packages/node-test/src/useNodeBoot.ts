@@ -1,5 +1,5 @@
 import {after, afterEach, before, beforeEach} from "node:test";
-import {NodeBootApp} from "@nodeboot/core";
+import type {NodeBootApp} from "@nodeboot/core";
 import {HooksLibrary, NodeBootTestFramework} from "@nodeboot/test";
 
 const activeFrameworks: any[] = (global as any).__nodeboot_active_frameworks__ || [];

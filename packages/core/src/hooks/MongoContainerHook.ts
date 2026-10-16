@@ -1,7 +1,8 @@
 import {Hook} from "./Hook";
-import {JsonObject} from "@nodeboot/context";
+import type {JsonObject} from "@nodeboot/context";
 import {useLogger} from "../utils/useLogger";
-import {GenericContainer, StartedTestContainer} from "testcontainers";
+import type {StartedTestContainer} from "testcontainers";
+import {requireOptional} from "../utils/optional-dependency";
 import {configureContainerRuntime, detectContainerRuntime} from "../utils/container-runtime";
 
 type MongoContainerOptions = {
@@ -50,6 +51,10 @@ export class MongoContainerHook extends Hook {
         configureContainerRuntime(runtimeConfig);
         logger.info(`[MongoContainerHook] Using container runtime: ${runtime}`);
 
+        const {GenericContainer} = requireOptional<typeof import("testcontainers")>(
+            "testcontainers",
+            "useMongoContainer",
+        );
         const container = new GenericContainer(image).withExposedPorts(port).withEnvironment({
             MONGO_INITDB_DATABASE: dbName,
             ...(opts.username ? {MONGO_INITDB_ROOT_USERNAME: opts.username} : {}),

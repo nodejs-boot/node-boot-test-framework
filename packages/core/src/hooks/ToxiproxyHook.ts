@@ -1,7 +1,8 @@
 import {Hook} from "./Hook";
-import {JsonObject} from "@nodeboot/context";
+import type {JsonObject} from "@nodeboot/context";
 import {useLogger} from "../utils/useLogger";
-import {CreatedProxy, StartedToxiProxyContainer, ToxiProxyContainer} from "@testcontainers/toxiproxy";
+import type {CreatedProxy, StartedToxiProxyContainer} from "@testcontainers/toxiproxy";
+import {requireOptional} from "../utils/optional-dependency";
 import {configureContainerRuntime, detectContainerRuntime} from "../utils/container-runtime";
 
 /**
@@ -147,6 +148,10 @@ export class ToxiproxyHook extends Hook {
         configureContainerRuntime(runtimeConfig);
         logger.info(`[ToxiproxyHook] Using container runtime: ${runtime}`);
 
+        const {ToxiProxyContainer} = requireOptional<typeof import("@testcontainers/toxiproxy")>(
+            "@testcontainers/toxiproxy",
+            "useToxiproxy",
+        );
         const container = new ToxiProxyContainer(image);
 
         if (opts.containerLogging) {

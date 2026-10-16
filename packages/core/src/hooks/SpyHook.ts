@@ -1,11 +1,11 @@
 import {Hook} from "./Hook";
-import {ApplicationContext} from "@nodeboot/context";
+import {getIocContainer} from "../utils/nodeboot";
 
 export class SpyHook extends Hook {
     private activeSpies: Array<() => void> = [];
 
     use<T>(serviceClass: new (...args: any[]) => T, methodName: keyof T & string) {
-        const ioc = ApplicationContext.getIocContainer();
+        const ioc = getIocContainer();
         if (!ioc) throw new Error("IOC Container is required to use service spies.");
         const instance = ioc.get(serviceClass) as T;
         if (!instance) throw new Error(`Service instance for ${serviceClass.name} not found.`);

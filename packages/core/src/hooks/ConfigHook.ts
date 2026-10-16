@@ -1,6 +1,6 @@
 import {Hook} from "./Hook";
-import {ApplicationContext, Config, JsonObject} from "@nodeboot/context";
-import {ConfigService} from "@nodeboot/config";
+import type {Config, JsonObject} from "@nodeboot/context";
+import {getConfigServiceClass, getIocContainer} from "../utils/nodeboot";
 
 export class ConfigHook extends Hook {
     private configs: JsonObject[] = [];
@@ -19,9 +19,9 @@ export class ConfigHook extends Hook {
     }
 
     use(): Config {
-        const iocContainer = ApplicationContext.getIocContainer();
-        if (iocContainer?.has(ConfigService)) {
-            return iocContainer.get(ConfigService);
+        const iocContainer = getIocContainer();
+        if (iocContainer?.has(getConfigServiceClass())) {
+            return iocContainer.get(getConfigServiceClass());
         }
         throw new Error(
             `No Config found in the IOC container. Please bootstrap your NodeBoot server before calling useConfig hook`,

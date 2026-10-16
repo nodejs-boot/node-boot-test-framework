@@ -1,6 +1,5 @@
 import {Hook} from "./Hook";
-import {ApplicationContext} from "@nodeboot/context";
-import {IocContainer} from "@nodeboot/context/dist/ioc/types";
+import {getIocContainer, IocContainer} from "../utils/nodeboot";
 
 /**
  * Hook to access the IOC Container.
@@ -11,7 +10,7 @@ import {IocContainer} from "@nodeboot/context/dist/ioc/types";
  */
 export class IocContainerHook extends Hook {
     use(): IocContainer {
-        const iocContainer = ApplicationContext.getIocContainer();
+        const iocContainer = getIocContainer();
         if (!iocContainer) {
             throw new Error(`IOC Container is required. Please check if nodeboot application is initialized properly.`);
         }

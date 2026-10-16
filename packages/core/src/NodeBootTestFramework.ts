@@ -1,7 +1,7 @@
-import {NodeBootApp, NodeBootAppView} from "@nodeboot/core";
+import type {NodeBootApp, NodeBootAppView} from "@nodeboot/core";
 import {HookManager} from "./HookManager";
 import {HooksLibrary} from "./HooksLibrary";
-import {ApplicationContext, ApplicationLifecycleBridge} from "@nodeboot/context";
+import {assertNodeBootCompatibility, getIocContainer, getLifecycleBridgeClass} from "./utils/nodeboot";
 import {binAppLogger, useLogger} from "./utils/useLogger";
 
 export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extends HooksLibrary = HooksLibrary> {
@@ -27,6 +27,7 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
     async runBeforeAll(
         setupCallback?: (setupHooks: ReturnType<CustomLibrary["getSetupHooks"]>) => void,
     ): Promise<void> {
+        assertNodeBootCompatibility();
         const logger = useLogger();
         this.hasRunBeforeAll = true;
         // Allow user-defined setup via callback
@@ -43,7 +44,7 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
         this.appInstance = new this.AppClass();
         this.bootAppView = await this.appInstance.start(testConfig);
 
-        const applicationLifecycle = ApplicationContext.getIocContainer()?.get(ApplicationLifecycleBridge);
+        const applicationLifecycle = getIocContainer()?.get(getLifecycleBridgeClass());
         // Wait until persistence layer is fully started
         await applicationLifecycle?.awaitEvent("persistence.started");
 
@@ -82,11 +83,11 @@ export class NodeBootTestFramework<App extends NodeBootApp, CustomLibrary extend
                 this.cleanupLog.push("server.close");
             }
 
-            ApplicationContext.getIocContainer()?.reset();
+            getIocContainer()?.reset();
             this.cleanupLog.push("ioc.reset");
 
             try {
-                const dataSource: any = ApplicationContext.getIocContainer()?.get?.(require("typeorm").DataSource);
+                const dataSource: any = getIocContainer()?.get?.(require("typeorm").DataSource);
                 if (dataSource?.isInitialized) {
                     logger.debug("Closing TypeORM DataSource...");
                     await dataSource.destroy();

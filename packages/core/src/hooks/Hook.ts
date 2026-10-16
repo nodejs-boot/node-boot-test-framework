@@ -1,5 +1,5 @@
-import {NodeBootAppView} from "@nodeboot/core";
-import {JsonObject} from "@nodeboot/context";
+import type {NodeBootAppView} from "@nodeboot/core";
+import type {JsonObject} from "@nodeboot/context";
 
 export abstract class Hook {
     private readonly priority: number;

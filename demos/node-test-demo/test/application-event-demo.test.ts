@@ -16,7 +16,7 @@ describe("Application Event Hook Demo", () => {
 
     it("should await the 'application.initialized' lifecycle event", async () => {
         // Await the lifecycle event (must be a valid LifecycleType value)
-        await useApplicationEvent.awaitEvent("application.initialized");
+        await useApplicationEvent().awaitEvent("application.initialized");
 
         // After event resolves, app context should be available
         useAppContext(appContext => {
@@ -29,7 +29,7 @@ describe("Application Event Hook Demo", () => {
 
     it("should await the 'application.started' lifecycle event", async () => {
         // Await the lifecycle event (must be a valid LifecycleType value)
-        await useApplicationEvent.awaitEvent("application.started");
+        await useApplicationEvent().awaitEvent("application.started");
 
         // After event resolves, app context should be available
         useAppContext(appContext => {
@@ -42,7 +42,7 @@ describe("Application Event Hook Demo", () => {
 
     it("should await the 'persistence.started' lifecycle event", async () => {
         // Await the lifecycle event (must be a valid LifecycleType value)
-        await useApplicationEvent.awaitEvent("persistence.started");
+        await useApplicationEvent().awaitEvent("persistence.started");
 
         // After event resolves, app context should be available
         useAppContext(appContext => {
@@ -55,7 +55,7 @@ describe("Application Event Hook Demo", () => {
 
     it("should await the 'application.adapters.bound' lifecycle event", async () => {
         // Await the lifecycle event (must be a valid LifecycleType value)
-        await useApplicationEvent.awaitEvent("application.adapters.bound");
+        await useApplicationEvent().awaitEvent("application.adapters.bound");
 
         // After event resolves, app context should be available
         useAppContext(appContext => {
@@ -70,7 +70,7 @@ describe("Application Event Hook Demo", () => {
         let error: any;
         try {
             // @ts-expect-error: testing runtime validation of missing event
-            await useApplicationEvent.awaitEvent("");
+            await useApplicationEvent().awaitEvent("");
         } catch (e) {
             error = e;
         }
