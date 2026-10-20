@@ -39,7 +39,7 @@
         "config.d.ts"
     ],
     "peerDependencies": {
-        "@nodeboot/core": ">=1.16.0 <2"
+        "@nodeboot/core": ">=1.16.0"
     },
     "devDependencies": {
         "@nodeboot/core": "^1.16.2"

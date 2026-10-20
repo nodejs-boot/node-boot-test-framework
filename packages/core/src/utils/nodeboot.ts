@@ -9,11 +9,11 @@
 import type * as ContextModule from "@nodeboot/context";
 import type * as ConfigModule from "@nodeboot/config";
 
-/** Supported Node-Boot versions: same major, at least the given minor. */
-const SUPPORTED: Record<string, {major: number; minMinor: number}> = {
-    "@nodeboot/core": {major: 1, minMinor: 16},
-    "@nodeboot/context": {major: 2, minMinor: 2},
-    "@nodeboot/config": {major: 1, minMinor: 3},
+/** Minimum supported Node-Boot versions. There is deliberately no upper bound: newer majors are expected to work. */
+const MIN_VERSION: Record<string, {major: number; minor: number}> = {
+    "@nodeboot/core": {major: 1, minor: 16},
+    "@nodeboot/context": {major: 2, minor: 2},
+    "@nodeboot/config": {major: 1, minor: 3},
 };
 
 const cache = new Map<string, any>();
@@ -27,8 +27,8 @@ function resolveFromApp(pkg: string): string {
 }
 
 function checkVersion(pkg: string, entry: string) {
-    const range = SUPPORTED[pkg];
-    if (!range) return;
+    const min = MIN_VERSION[pkg];
+    if (!min) return;
     try {
         // walk up from the resolved entry file to the package.json of the package
         let dir = require("path").dirname(entry);
@@ -44,9 +44,9 @@ function checkVersion(pkg: string, entry: string) {
         }
         const [major, minor] = (manifest?.version ?? "").split(".").map(Number);
         if (major === undefined || Number.isNaN(major)) return;
-        if (major !== range.major || (minor ?? 0) < range.minMinor) {
+        if (major < min.major || (major === min.major && (minor ?? 0) < min.minor)) {
             throw new Error(
-                `Unsupported ${pkg}@${manifest?.version}. @nodeboot/test supports ${pkg} ^${range.major}.${range.minMinor}.0`,
+                `Unsupported ${pkg}@${manifest?.version}. @nodeboot/test supports ${pkg} >=${min.major}.${min.minor}.0`,
             );
         }
     } catch (e) {
@@ -80,7 +80,7 @@ export const getConfigServiceClass = () => loadNodeBoot<typeof ConfigModule>("@n
 
 /** Fails fast (at test bootstrap) if the Node-Boot packages are missing or unsupported. */
 export function assertNodeBootCompatibility() {
-    for (const pkg of Object.keys(SUPPORTED)) {
+    for (const pkg of Object.keys(MIN_VERSION)) {
         loadNodeBoot(pkg as any);
     }
 }
